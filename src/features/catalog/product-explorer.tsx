@@ -113,9 +113,15 @@ export function ProductExplorer({
         </div>
       ) : (
         <div className="mt-6 rounded-lg border border-dashed border-border bg-surface px-5 py-16 text-center">
-          <p className="font-bold">ไม่พบสินค้าที่ตรงกับตัวกรอง</p>
+          <p className="font-bold">
+            {products.length
+              ? "ไม่พบสินค้าที่ตรงกับตัวกรอง"
+              : "ยังไม่มีสินค้าใน environment นี้"}
+          </p>
           <p className="mt-1 text-sm text-muted">
-            ลองเปลี่ยนคำค้นหาหรือเลือกประเภทอื่น
+            {products.length
+              ? "ลองเปลี่ยนคำค้นหาหรือเลือกประเภทอื่น"
+              : "เชื่อมต่อ API สำเร็จแล้ว รอเจ้าของสวนเพิ่มสินค้าและเปิดขาย"}
           </p>
         </div>
       )}

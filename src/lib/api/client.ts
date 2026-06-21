@@ -1,7 +1,8 @@
 import type { ApiEnvelope, AuthResponse } from "@/lib/types";
 
 export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api/v1";
+  process.env.NEXT_PUBLIC_API_URL ??
+  "https://api-dev.nexdev-tech.com/api/v1";
 
 export class ApiError extends Error {
   constructor(

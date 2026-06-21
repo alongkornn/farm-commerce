@@ -25,7 +25,7 @@ The frontend runs at `http://localhost:3000`. Set the backend URL in
 `.env.local`:
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1
+NEXT_PUBLIC_API_URL=https://api-dev.nexdev-tech.com/api/v1
 ```
 
 The repository contains representative mock data so every screen can be

@@ -1,8 +1,8 @@
-import { MapPin, PackageCheck, RotateCcw, Truck } from "lucide-react";
+import { MapPin, PackageCheck, Truck } from "lucide-react";
 import { notFound } from "next/navigation";
 import { AccountShell } from "@/components/layout/account-shell";
-import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { RefundButton } from "@/features/account/refund-button";
 import { mockOrders } from "@/lib/mock-data";
 import { formatDateTime, formatMoney } from "@/lib/utils";
 
@@ -40,7 +40,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           </div>
           <div className="rounded-lg border border-border bg-surface p-5">
             <p className="flex justify-between text-sm"><span className="text-muted">ยอดรวม</span><strong className="text-primary">{formatMoney(order.totalSatang)}</strong></p>
-            <Button variant="outline" className="mt-4 w-full"><RotateCcw size={17} />ขอคืนเงิน</Button>
+            <RefundButton />
           </div>
         </aside>
       </div>

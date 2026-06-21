@@ -1,8 +1,12 @@
+"use client";
+
 import { Heart, ImageIcon, ShoppingBasket } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { useCommerce } from "@/features/commerce/commerce-provider";
 import type { Product } from "@/lib/types";
-import { formatMoney } from "@/lib/utils";
+import { cn, formatMoney } from "@/lib/utils";
 
 const productColors = [
   "bg-[#f1d880]",
@@ -19,6 +23,8 @@ export function ProductCard({
   index?: number;
 }) {
   const image = product.images?.[0]?.url;
+  const { addToCart, favorites, toggleFavorite } = useCommerce();
+  const favorite = favorites.includes(product.id);
 
   return (
     <article className="group overflow-hidden rounded-lg border border-border bg-surface transition hover:-translate-y-0.5 hover:shadow-[var(--shadow)]">
@@ -44,13 +50,21 @@ export function ProductCard({
           </div>
         )}
         </Link>
-        <Link
-          href={`/login?next=${encodeURIComponent(`/products/${product.id}`)}`}
-          className="focus-ring absolute right-3 top-3 grid size-9 place-items-center rounded-full bg-white/90 text-foreground shadow-sm hover:text-danger"
+        <button
+          onClick={() => {
+            const added = toggleFavorite(product.id);
+            toast.success(
+              added ? "เพิ่มในรายการโปรดแล้ว" : "นำออกจากรายการโปรดแล้ว",
+            );
+          }}
+          className={cn(
+            "focus-ring absolute right-3 top-3 grid size-9 place-items-center rounded-full bg-white/90 text-foreground shadow-sm hover:text-danger",
+            favorite && "text-danger",
+          )}
           aria-label={`เพิ่ม ${product.name} เป็นรายการโปรด`}
         >
-          <Heart size={18} />
-        </Link>
+          <Heart size={18} fill={favorite ? "currentColor" : "none"} />
+        </button>
       </div>
       <div className="p-4">
         <div className="flex items-start justify-between gap-3">
@@ -70,13 +84,16 @@ export function ProductCard({
           <span className="text-xs text-muted">
             {product.size} · เหลือ {product.stock}
           </span>
-          <Link
-            href={`/products/${product.id}`}
+          <button
+            onClick={() => {
+              addToCart(product, 1);
+              toast.success(`เพิ่ม ${product.name} ลงตะกร้าแล้ว`);
+            }}
             className="focus-ring grid size-9 place-items-center rounded-md bg-primary text-white hover:bg-primary-strong"
-            aria-label={`ดูและเลือกซื้อ ${product.name}`}
+            aria-label={`เพิ่ม ${product.name} ลงตะกร้า`}
           >
             <ShoppingBasket size={18} />
-          </Link>
+          </button>
         </div>
       </div>
     </article>

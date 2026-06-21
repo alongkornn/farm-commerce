@@ -4,12 +4,21 @@ import Link from "next/link";
 import { PageHeading } from "@/components/layout/page-heading";
 import { StoreShell } from "@/components/layout/store-shell";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { getSellers, getVisitSlots } from "@/lib/api/catalog";
 import { mockSellers, mockVisitSlots } from "@/lib/mock-data";
 import { formatDateTime } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "เที่ยวชมสวน" };
 
-export default function VisitsPage() {
+export default async function VisitsPage() {
+  let slots = mockVisitSlots;
+  let sellers = mockSellers;
+  try {
+    [slots, sellers] = await Promise.all([getVisitSlots(), getSellers()]);
+  } catch {
+    // Keep mock data available for local UI review if the API is offline.
+  }
   return (
     <StoreShell>
       <PageHeading
@@ -17,9 +26,13 @@ export default function VisitsPage() {
         title="รอบเที่ยวชมสวน"
         description="เลือกรอบวันและเวลาที่สะดวก จากนั้นเข้าสู่ระบบเพื่อแจ้งจำนวนผู้เข้าชม พาหนะ และชื่อผู้จอง"
       />
-      <div className="container-page grid gap-4 py-8 lg:grid-cols-2">
-        {mockVisitSlots.map((slot, index) => {
-          const seller = mockSellers[index % mockSellers.length];
+      <div className="container-page py-8">
+        {slots.length ? (
+          <div className="grid gap-4 lg:grid-cols-2">
+            {slots.map((slot, index) => {
+          const seller =
+            sellers.find((item) => item.userId === slot.sellerId) ??
+            mockSellers[index % mockSellers.length];
           return (
             <article
               key={slot.id}
@@ -55,7 +68,17 @@ export default function VisitsPage() {
               </div>
             </article>
           );
-        })}
+            })}
+          </div>
+        ) : (
+          <div className="rounded-lg border border-border bg-surface">
+            <EmptyState
+              icon={CalendarDays}
+              title="ยังไม่มีรอบเที่ยวชมสวน"
+              description="เชื่อมต่อ API สำเร็จแล้ว แต่ยังไม่มีสวนเปิดรอบให้จองในขณะนี้"
+            />
+          </div>
+        )}
       </div>
     </StoreShell>
   );
