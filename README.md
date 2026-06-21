@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Farm Commerce Frontend
 
-## Getting Started
+Responsive marketplace frontend for the Farm Commerce backend. Built with
+Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4 and TanStack Query.
 
-First, run the development server:
+## User Areas
+
+- Public storefront: products, farms and visit slots
+- Authentication: buyer/seller registration, login and password recovery
+- Buyer: cart, checkout, orders, refunds, bookings, addresses, favorites and notifications
+- Seller: dashboard, products, orders, visit slots, bookings, closures and payouts
+- Admin: seller approvals, refunds, coupons, users and payout runs
+
+## Local Setup
+
+Requirements: Node.js 22 and npm.
 
 ```bash
+cp .env.example .env.local
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The frontend runs at `http://localhost:3000`. Set the backend URL in
+`.env.local`:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The repository contains representative mock data so every screen can be
+reviewed while the backend is unavailable. API functions matching the backend
+routes live in `src/lib/api`.
 
-## Learn More
+## Verification
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run lint
+npm run build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+GitHub Actions runs both commands for pull requests and pushes to `main`,
+`dev`, `stg` and `uat`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Docker
 
-## Deploy on Vercel
+`NEXT_PUBLIC_API_URL` is a build-time variable because it is exposed to the
+browser bundle.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+docker build \
+  --build-arg NEXT_PUBLIC_API_URL=https://api.example.com/api/v1 \
+  -t farm-commerce .
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+docker run --rm -p 3000:3000 farm-commerce
+```
+
+## Branch Flow
+
+- `dev`: development deployment
+- `stg`: staging deployment
+- `uat`: acceptance testing
+- `main`: production
+
+Feature branches are merged progressively through these environment branches.
