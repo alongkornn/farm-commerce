@@ -1,4 +1,13 @@
-import type { Product, SellerProfile, VisitSlot } from "@/lib/types";
+import type {
+  Address,
+  Booking,
+  CartItem,
+  Notification,
+  Order,
+  Product,
+  SellerProfile,
+  VisitSlot,
+} from "@/lib/types";
 
 const now = new Date();
 
@@ -110,3 +119,81 @@ export const mockVisitSlots: VisitSlot[] = Array.from(
     };
   },
 );
+
+export const mockCartItems: CartItem[] = [
+  { id: "cart-1", productId: "p-1", quantity: 2, product: mockProducts[0] },
+  { id: "cart-2", productId: "p-2", quantity: 1, product: mockProducts[1] },
+];
+
+export const mockAddresses: Address[] = [
+  {
+    id: "address-1",
+    label: "บ้าน",
+    recipient: "สมชาย ใจดี",
+    phone: "0812345678",
+    line1: "99/9 หมู่ 4",
+    line2: "",
+    subdistrict: "บางรัก",
+    district: "บางรัก",
+    province: "กรุงเทพมหานคร",
+    postalCode: "10500",
+    isDefault: true,
+  },
+];
+
+export const mockOrders: Order[] = [
+  {
+    id: "order-20260621-01",
+    buyerId: "buyer-1",
+    sellerId: "s-1",
+    status: "processing",
+    totalSatang: 48700,
+    shippingFeeSatang: 4000,
+    recipientName: "สมชาย ใจดี",
+    recipientPhone: "0812345678",
+    shippingAddress: "99/9 หมู่ 4 บางรัก กรุงเทพมหานคร 10500",
+    items: [
+      {
+        id: "oi-1",
+        productId: "p-1",
+        productName: "มะม่วงน้ำดอกไม้สีทอง",
+        unitPriceSatang: 14900,
+        quantity: 3,
+        subtotalSatang: 44700,
+      },
+    ],
+    createdAt: now.toISOString(),
+  },
+];
+
+export const mockBookings: Booking[] = [
+  {
+    id: "booking-1",
+    slotId: mockVisitSlots[0].id,
+    sellerId: "s-1",
+    buyerId: "buyer-1",
+    visitorCount: 4,
+    vehicle: "รถยนต์ส่วนตัว",
+    bookerName: "สมชาย ใจดี",
+    status: "pending",
+    slot: mockVisitSlots[0],
+    createdAt: now.toISOString(),
+  },
+];
+
+export const mockNotifications: Notification[] = [
+  {
+    id: "notification-1",
+    title: "สวนรับคำสั่งซื้อแล้ว",
+    message: "สวนลุงพรกำลังเตรียมมะม่วงสำหรับคำสั่งซื้อของคุณ",
+    read: false,
+    createdAt: now.toISOString(),
+  },
+  {
+    id: "notification-2",
+    title: "ส่งคำขอจองสำเร็จ",
+    message: "ระบบส่งคำขอเที่ยวชมสวนแล้ว กรุณารอการตรวจสอบจากสวน",
+    read: true,
+    createdAt: mockVisitSlots[0].startAt,
+  },
+];

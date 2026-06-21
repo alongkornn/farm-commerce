@@ -114,3 +114,32 @@ export type ProductPage = {
     totalPages: number;
   };
 };
+
+export type CartItem = {
+  id: string;
+  productId: string;
+  quantity: number;
+  product: Product;
+};
+
+export type Address = {
+  id: string;
+  label: string;
+  recipient: string;
+  phone: string;
+  line1: string;
+  line2?: string;
+  subdistrict: string;
+  district: string;
+  province: string;
+  postalCode: string;
+  isDefault: boolean;
+};
+
+export type Notification = {
+  id: string;
+  title: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+};
