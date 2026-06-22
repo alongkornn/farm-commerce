@@ -17,7 +17,7 @@ import { cn, formatDateTime } from "@/lib/utils";
 const tabs = [
   ["ทั้งหมด", ""],
   ["รอตรวจสอบ", "pending"],
-  ["อนุมัติแล้ว", "approved"],
+  ["ยืนยันแล้ว", "approved"],
   ["สำเร็จ", "completed"],
   ["ยกเลิก", "cancelled"],
 ];

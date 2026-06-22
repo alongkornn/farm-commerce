@@ -12,6 +12,7 @@ import {
   Settings,
   ShoppingBag,
   Store,
+  Tags,
   TicketPercent,
   UsersRound,
 } from "lucide-react";
@@ -34,6 +35,7 @@ const sellerLinks = [
 const adminLinks = [
   { href: "/admin", label: "ภาพรวม", icon: LayoutDashboard },
   { href: "/admin/sellers", label: "ตรวจสอบสวน", icon: Store },
+  { href: "/admin/categories", label: "หมวดสินค้า", icon: Tags },
   { href: "/admin/refunds", label: "คืนเงิน", icon: RefreshCcw },
   { href: "/admin/coupons", label: "คูปอง", icon: TicketPercent },
   { href: "/admin/payouts", label: "รอบจ่ายเงิน", icon: BadgeDollarSign },

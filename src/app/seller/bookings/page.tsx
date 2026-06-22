@@ -72,19 +72,23 @@ export default function SellerBookingsPage() {
                     <StatusBadge status={booking.status} />
                   </Cell>
                   <Cell className="space-x-2">
-                    <Button
-                      size="sm"
-                      onClick={() => void update(booking.id, "confirmed")}
-                    >
-                      อนุมัติ
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => void update(booking.id, "rejected")}
-                    >
-                      ปฏิเสธ
-                    </Button>
+                    {booking.status === "pending" ? (
+                      <>
+                        <Button
+                          size="sm"
+                          onClick={() => void update(booking.id, "approved")}
+                        >
+                          อนุมัติ
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => void update(booking.id, "rejected")}
+                        >
+                          ปฏิเสธ
+                        </Button>
+                      </>
+                    ) : null}
                   </Cell>
                 </tr>
               ))}
