@@ -12,12 +12,21 @@ import { StoreShell } from "@/components/layout/store-shell";
 import { Button } from "@/components/ui/button";
 import { FarmCard } from "@/features/catalog/farm-card";
 import { ProductCard } from "@/features/catalog/product-card";
-import { mockProducts, mockSellers, mockVisitSlots } from "@/lib/mock-data";
+import { getProducts, getSellers, getVisitSlots } from "@/lib/api/catalog";
 import { formatDateTime } from "@/lib/utils";
 
 const categories = ["มะม่วง", "ส้มโอ", "ผลไม้ตามฤดูกาล", "ชุดของขวัญ"];
 
-export default function Home() {
+export default async function Home() {
+  const [productResult, sellers, visitSlots] = await Promise.all([
+    getProducts({ page: 1, limit: 4 }).catch(() => ({
+      items: [],
+      meta: { page: 1, limit: 4, total: 0, totalPages: 0 },
+    })),
+    getSellers().catch(() => []),
+    getVisitSlots().catch(() => []),
+  ]);
+  const products = productResult.items;
   return (
     <StoreShell>
       <section className="relative min-h-[560px] overflow-hidden bg-[#24472f] text-white md:min-h-[620px]">
@@ -101,9 +110,14 @@ export default function Home() {
           href="/products"
         />
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {mockProducts.map((product, index) => (
+          {products.map((product, index) => (
             <ProductCard key={product.id} product={product} index={index} />
           ))}
+          {!products.length ? (
+            <p className="col-span-full rounded-lg border border-dashed border-border bg-surface p-10 text-center text-sm text-muted">
+              ยังไม่มีสินค้า
+            </p>
+          ) : null}
         </div>
       </section>
 
@@ -115,9 +129,14 @@ export default function Home() {
             href="/farms"
           />
           <div className="mt-6 grid gap-4 lg:grid-cols-3">
-            {mockSellers.map((seller, index) => (
+            {sellers.slice(0, 3).map((seller, index) => (
               <FarmCard key={seller.id} seller={seller} index={index} />
             ))}
+            {!sellers.length ? (
+              <p className="col-span-full rounded-lg border border-dashed border-border bg-surface p-10 text-center text-sm text-muted">
+                ยังไม่มีสวน
+              </p>
+            ) : null}
           </div>
         </div>
       </section>
@@ -141,7 +160,7 @@ export default function Home() {
             </Link>
           </div>
           <div className="divide-y divide-border rounded-lg border border-border bg-surface">
-            {mockVisitSlots.slice(0, 3).map((slot, index) => (
+            {visitSlots.slice(0, 3).map((slot, index) => (
               <Link
                 key={slot.id}
                 href={`/visits?slot=${slot.id}`}
@@ -152,7 +171,8 @@ export default function Home() {
                 </span>
                 <div className="min-w-0">
                   <p className="font-bold">
-                    {mockSellers[index % 2].farmName}
+                    {sellers.find((seller) => seller.userId === slot.sellerId)
+                      ?.farmName ?? "สวน"}
                   </p>
                   <p className="mt-0.5 text-xs text-muted">
                     {formatDateTime(slot.startAt)} · รับ {slot.capacity} คน
@@ -161,6 +181,11 @@ export default function Home() {
                 <ArrowRight className="ml-auto shrink-0 text-muted" size={18} />
               </Link>
             ))}
+            {!visitSlots.length ? (
+              <p className="p-8 text-center text-sm text-muted">
+                ยังไม่มีรอบเที่ยวชมสวน
+              </p>
+            ) : null}
           </div>
         </div>
       </section>

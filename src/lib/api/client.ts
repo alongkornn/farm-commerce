@@ -1,7 +1,8 @@
 import type { ApiEnvelope, AuthResponse } from "@/lib/types";
 
 export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api/v1";
+  process.env.NEXT_PUBLIC_API_URL ??
+  "https://api-dev.nexdev-tech.com/api/v1";
 
 export class ApiError extends Error {
   constructor(
@@ -72,4 +73,22 @@ export async function register(
     { method: "POST", body: JSON.stringify(payload) },
   );
   return response.data;
+}
+
+export async function refreshSession(refreshToken: string) {
+  const response = await apiRequest<ApiEnvelope<AuthResponse>>(
+    "/refresh-token",
+    {
+      method: "POST",
+      body: JSON.stringify({ refreshToken }),
+    },
+  );
+  return response.data;
+}
+
+export async function logout(accessToken: string) {
+  return apiRequest<void>("/logout", {
+    method: "POST",
+    token: accessToken,
+  });
 }

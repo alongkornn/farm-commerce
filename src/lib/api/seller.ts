@@ -6,6 +6,10 @@ import type {
   Product,
   SellerProfile,
   VisitSlot,
+  DashboardSummary,
+  FarmClosure,
+  Payout,
+  UploadResponse,
 } from "@/lib/types";
 
 type Token = string;
@@ -51,7 +55,16 @@ export async function createProduct(
 export async function updateProduct(
   token: Token,
   id: string,
-  payload: Partial<Product>,
+  payload: {
+    sku: string;
+    name: string;
+    category: string;
+    priceSatang: number;
+    size: string;
+    stock: number;
+    imageUrls: string[];
+    description: string;
+  },
 ) {
   return apiRequest<ApiEnvelope<Product>>(`/seller/products/${id}`, {
     method: "PUT",
@@ -126,7 +139,7 @@ export async function checkInBooking(token: Token, checkInCode: string) {
   return apiRequest<void>("/seller/bookings/check-in", {
     method: "POST",
     token,
-    body: JSON.stringify({ checkInCode }),
+    body: JSON.stringify({ code: checkInCode }),
   });
 }
 
@@ -150,15 +163,53 @@ export async function createVisitSlot(
 }
 
 export async function getSellerDashboard(token: Token) {
-  const response = await apiRequest<ApiEnvelope<unknown>>("/seller/dashboard", {
+  const response = await apiRequest<ApiEnvelope<DashboardSummary>>(
+    "/seller/dashboard",
+    { token },
+  );
+  return response.data;
+}
+
+export async function getSellerPayouts(token: Token) {
+  const response = await apiRequest<ApiEnvelope<Payout[]>>("/seller/payouts", {
     token,
   });
   return response.data;
 }
 
-export async function getSellerPayouts(token: Token) {
-  const response = await apiRequest<ApiEnvelope<unknown[]>>("/seller/payouts", {
+export async function getClosures(token: Token) {
+  const response = await apiRequest<ApiEnvelope<FarmClosure[]>>(
+    "/seller/closures",
+    { token },
+  );
+  return response.data;
+}
+
+export async function createClosure(
+  token: Token,
+  payload: { startDate: string; endDate: string; reason: string },
+) {
+  const response = await apiRequest<ApiEnvelope<FarmClosure>>(
+    "/seller/closures",
+    { method: "POST", token, body: JSON.stringify(payload) },
+  );
+  return response.data;
+}
+
+export async function deleteClosure(token: Token, id: string) {
+  return apiRequest<void>(`/seller/closures/${id}`, {
+    method: "DELETE",
     token,
   });
+}
+
+export async function createProductUpload(
+  token: Token,
+  payload: { fileName: string; contentType: string },
+) {
+  const response = await apiRequest<ApiEnvelope<UploadResponse>>(
+    "/seller/uploads/product-image",
+    { method: "POST", token, body: JSON.stringify(payload) },
+  );
   return response.data;
 }

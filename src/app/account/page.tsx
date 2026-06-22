@@ -1,75 +1,72 @@
-import { CalendarCheck, Package, ShoppingBasket, UserRound } from "lucide-react";
-import Link from "next/link";
+"use client";
+
+import { CalendarCheck, Package, ShoppingBasket } from "lucide-react";
 import { AccountShell } from "@/components/layout/account-shell";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { mockBookings, mockOrders } from "@/lib/mock-data";
-import { formatDateTime, formatMoney } from "@/lib/utils";
+import { ResourceState } from "@/components/ui/resource-state";
+import { AuthGuard } from "@/features/auth/auth-guard";
+import { useAuth } from "@/features/auth/auth-provider";
+import { useCommerce } from "@/features/commerce/commerce-provider";
+import type { Booking, Order, User } from "@/lib/types";
+import { useApiResource } from "@/lib/use-api-resource";
 
 export default function AccountPage() {
-  const order = mockOrders[0];
-  const booking = mockBookings[0];
+  const { user } = useAuth();
+  const { cart } = useCommerce();
+  const orders = useApiResource<Order[]>("/orders", []);
+  const bookings = useApiResource<Booking[]>("/bookings", []);
+  const profile = useApiResource<User>("/account/profile", {
+    id: "",
+    email: "",
+    firstName: "",
+    lastName: "",
+    phone: "",
+    userType: "buyer",
+    verified: false,
+    status: "",
+  });
+
   return (
     <AccountShell
-      title="สวัสดี สมชาย"
+      title={`สวัสดี ${profile.data.firstName || user?.firstName || ""}`}
       description="ติดตามรายการล่าสุดและจัดการข้อมูลของคุณจากหน้านี้"
     >
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Summary icon={Package} label="คำสั่งซื้อที่กำลังดำเนินการ" value="1" />
-        <Summary icon={CalendarCheck} label="การจองที่รอตรวจสอบ" value="1" />
-        <Summary icon={ShoppingBasket} label="สินค้าในตะกร้า" value="3" />
-      </div>
-      <div className="mt-8 grid gap-6 xl:grid-cols-2">
-        <section>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-extrabold">คำสั่งซื้อล่าสุด</h2>
-            <Link href="/orders" className="text-sm font-bold text-primary">
-              ดูทั้งหมด
-            </Link>
+      <AuthGuard roles={["buyer"]}>
+        <ResourceState
+          loading={orders.loading || bookings.loading || profile.loading}
+          error={orders.error || bookings.error || profile.error}
+          onRetry={() => {
+            void orders.reload();
+            void bookings.reload();
+            void profile.reload();
+          }}
+        />
+        {!orders.loading &&
+        !bookings.loading &&
+        !profile.loading &&
+        !orders.error &&
+        !bookings.error &&
+        !profile.error ? (
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Summary
+              icon={Package}
+              label="คำสั่งซื้อทั้งหมด"
+              value={String(orders.data.length)}
+            />
+            <Summary
+              icon={CalendarCheck}
+              label="การจองทั้งหมด"
+              value={String(bookings.data.length)}
+            />
+            <Summary
+              icon={ShoppingBasket}
+              label="สินค้าในตะกร้า"
+              value={String(
+                cart.reduce((sum, item) => sum + item.quantity, 0),
+              )}
+            />
           </div>
-          <Link
-            href={`/orders/${order.id}`}
-            className="block rounded-lg border border-border bg-surface p-5 hover:border-primary/40"
-          >
-            <div className="flex justify-between gap-3">
-              <div>
-                <p className="text-sm font-bold">{order.id}</p>
-                <p className="mt-1 text-xs text-muted">
-                  {formatDateTime(order.createdAt)}
-                </p>
-              </div>
-              <StatusBadge status={order.status} />
-            </div>
-            <p className="mt-5 text-right font-display text-xl font-extrabold text-primary">
-              {formatMoney(order.totalSatang)}
-            </p>
-          </Link>
-        </section>
-        <section>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-extrabold">การจองล่าสุด</h2>
-            <Link href="/bookings" className="text-sm font-bold text-primary">
-              ดูทั้งหมด
-            </Link>
-          </div>
-          <Link
-            href="/bookings"
-            className="block rounded-lg border border-border bg-surface p-5 hover:border-primary/40"
-          >
-            <div className="flex justify-between gap-3">
-              <div>
-                <p className="text-sm font-bold">
-                  ผู้เข้าชม {booking.visitorCount} คน
-                </p>
-                <p className="mt-1 text-xs text-muted">
-                  {formatDateTime(booking.slot.startAt)}
-                </p>
-              </div>
-              <StatusBadge status={booking.status} />
-            </div>
-            <p className="mt-5 text-sm text-muted">{booking.vehicle}</p>
-          </Link>
-        </section>
-      </div>
+        ) : null}
+      </AuthGuard>
     </AccountShell>
   );
 }
@@ -79,7 +76,7 @@ function Summary({
   label,
   value,
 }: {
-  icon: typeof UserRound;
+  icon: typeof Package;
   label: string;
   value: string;
 }) {

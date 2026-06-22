@@ -5,6 +5,7 @@ import type {
   ProductPage,
   SellerProfile,
   VisitSlot,
+  Review,
 } from "@/lib/types";
 
 export type ProductFilters = {
@@ -62,6 +63,13 @@ export async function getSellerProducts(id: string) {
 export async function getVisitSlots(sellerId?: string) {
   const response = await apiRequest<ApiEnvelope<VisitSlot[]>>(
     `/visit-slots${queryString({ sellerId })}`,
+  );
+  return response.data;
+}
+
+export async function getReviews(productId: string) {
+  const response = await apiRequest<ApiEnvelope<Review[]>>(
+    `/products/${productId}/reviews`,
   );
   return response.data;
 }

@@ -5,6 +5,7 @@ import {
   Heart,
   Leaf,
   LogIn,
+  LogOut,
   Menu,
   Search,
   ShoppingBasket,
@@ -16,6 +17,8 @@ import { useState } from "react";
 import { useAuth } from "@/features/auth/auth-provider";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const publicLinks = [
   { href: "/products", label: "สินค้าทั้งหมด" },
@@ -25,7 +28,8 @@ const publicLinks = [
 
 export function SiteHeader() {
   const pathname = usePathname();
-  const { user, hydrated } = useAuth();
+  const router = useRouter();
+  const { user, hydrated, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const dashboardHref =
@@ -102,12 +106,26 @@ export function SiteHeader() {
           ) : null}
 
           {hydrated && user ? (
-            <Link href={dashboardHref} className="ml-1 hidden sm:block">
-              <Button variant="outline" size="sm">
-                <UserRound size={17} />
-                {user.firstName}
+            <div className="ml-1 hidden items-center gap-1 sm:flex">
+              <Link href={dashboardHref}>
+                <Button variant="outline" size="sm">
+                  <UserRound size={17} />
+                  {user.firstName}
+                </Button>
+              </Link>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="ออกจากระบบ"
+                onClick={async () => {
+                  await signOut();
+                  toast.success("ออกจากระบบแล้ว");
+                  router.push("/");
+                }}
+              >
+                <LogOut size={18} />
               </Button>
-            </Link>
+            </div>
           ) : (
             <Link href="/login" className="ml-1 hidden sm:block">
               <Button size="sm">
@@ -147,6 +165,20 @@ export function SiteHeader() {
           >
             {user ? "ไปยังบัญชีของฉัน" : "เข้าสู่ระบบ / สมัครสมาชิก"}
           </Link>
+          {user ? (
+            <button
+              onClick={async () => {
+                await signOut();
+                setMenuOpen(false);
+                toast.success("ออกจากระบบแล้ว");
+                router.push("/");
+              }}
+              className="flex items-center gap-2 rounded-md px-3 py-2.5 text-left text-sm font-semibold text-danger hover:bg-[#f6ded8]"
+            >
+              <LogOut size={17} />
+              ออกจากระบบ
+            </button>
+          ) : null}
         </nav>
       ) : null}
     </header>

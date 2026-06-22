@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { StoreShell } from "@/components/layout/store-shell";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/features/catalog/product-card";
-import { mockProducts, mockSellers } from "@/lib/mock-data";
+import { getSeller, getSellerProducts } from "@/lib/api/catalog";
 
 export default async function FarmDetailPage({
   params,
@@ -12,10 +12,9 @@ export default async function FarmDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const seller = mockSellers.find((item) => item.userId === id);
+  const seller = await getSeller(id).catch(() => null);
   if (!seller) notFound();
-  const products = mockProducts.filter((item) => item.sellerId === id);
-
+  const products = await getSellerProducts(id).catch(() => []);
   return (
     <StoreShell>
       <section className="border-b border-border bg-[#dbe7c4]">
@@ -26,7 +25,7 @@ export default async function FarmDetailPage({
             </span>
             <h1 className="mt-5 text-4xl font-extrabold">{seller.farmName}</h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
-              {seller.description}
+              {seller.description || "ไม่มีคำอธิบาย"}
             </p>
             <p className="mt-4 flex items-center gap-2 text-sm font-bold text-primary">
               <MapPin size={17} />
@@ -51,7 +50,7 @@ export default async function FarmDetailPage({
           </div>
         ) : (
           <p className="mt-5 rounded-lg border border-dashed border-border bg-surface p-10 text-center text-sm text-muted">
-            สวนยังไม่มีสินค้าที่เปิดขายในขณะนี้
+            สวนยังไม่มีสินค้า
           </p>
         )}
       </section>

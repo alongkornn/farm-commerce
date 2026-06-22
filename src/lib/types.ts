@@ -138,8 +138,93 @@ export type Address = {
 
 export type Notification = {
   id: string;
+  type: string;
   title: string;
   message: string;
-  read: boolean;
+  entityId?: string | null;
+  readAt?: string | null;
   createdAt: string;
+};
+
+export type Review = {
+  id: string;
+  buyerId: string;
+  productId: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Refund = {
+  id: string;
+  orderId: string;
+  buyerId: string;
+  amountSatang: number;
+  reason: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Payout = {
+  id: string;
+  sellerId: string;
+  orderId: string;
+  grossSatang: number;
+  feeSatang: number;
+  netSatang: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Coupon = {
+  id: string;
+  code: string;
+  discountType: "percent" | "fixed";
+  discountValue: number;
+  minimumSatang: number;
+  maximumDiscount: number;
+  usageLimit: number;
+  usedCount: number;
+  active: boolean;
+  startsAt: string;
+  endsAt: string;
+};
+
+export type FarmClosure = {
+  id: string;
+  sellerId: string;
+  startDate: string;
+  endDate: string;
+  reason: string;
+  createdAt: string;
+};
+
+export type DashboardSummary = {
+  period: string;
+  visitorCount: number;
+  orderCount: number;
+  revenueSatang: number;
+  pendingBooking: number;
+  pendingOrder: number;
+};
+
+export type CheckoutResponse = {
+  paymentId: string;
+  status: string;
+  amountSatang: number;
+  discountSatang: number;
+  expiresAt: string;
+  orders: Order[];
+};
+
+export type UploadResponse = {
+  uploadUrl: string;
+  method: string;
+  headers: Record<string, string>;
+  objectKey: string;
+  publicUrl: string;
+  expiresIn: number;
 };
