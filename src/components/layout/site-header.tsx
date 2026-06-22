@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-const publicLinks = [
+const basePublicLinks = [
   { href: "/products", label: "สินค้าทั้งหมด" },
   { href: "/farms", label: "สวนที่น่าสนใจ" },
   { href: "/visits", label: "เที่ยวชมสวน" },
@@ -33,6 +33,13 @@ export function SiteHeader() {
   const { user, hydrated, signOut } = useAuth();
   const { cartCount } = useCommerce();
   const [menuOpen, setMenuOpen] = useState(false);
+  const publicLinks =
+    user?.userType === "buyer"
+      ? [
+          ...basePublicLinks.slice(0, 2),
+          { href: "/bookings", label: "การจองเที่ยวสวน" },
+        ]
+      : basePublicLinks;
 
   const dashboardHref =
     user?.userType === "seller"

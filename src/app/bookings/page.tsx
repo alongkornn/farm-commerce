@@ -1,6 +1,7 @@
 "use client";
 
 import { CalendarDays, Car, Users } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AccountShell } from "@/components/layout/account-shell";
@@ -35,6 +36,14 @@ export default function BookingsPage() {
       description="ตรวจสอบสถานะคำขอ วันที่เข้าเยี่ยมชม และรหัสเช็กอิน"
     >
       <AuthGuard roles={["buyer"]}>
+        <div className="mb-5 flex justify-end">
+          <Link href="/visits">
+            <Button>
+              <CalendarDays size={17} />
+              จองเที่ยวสวนเพิ่ม
+            </Button>
+          </Link>
+        </div>
         <div className="mb-5 flex gap-2 overflow-x-auto scrollbar-none">
           {tabs.map(([label, value]) => (
             <button
@@ -109,9 +118,17 @@ export default function BookingsPage() {
               </article>
             ))}
             {!resource.data.length ? (
-              <p className="rounded-lg border border-dashed border-border bg-surface p-10 text-center text-sm text-muted">
-                ไม่มีรายการจอง
-              </p>
+              <div className="rounded-lg border border-dashed border-border bg-surface p-10 text-center">
+                <p className="font-bold">ยังไม่มีรายการจอง</p>
+                <p className="mt-1 text-sm text-muted">
+                  เลือกสวนก่อน แล้วเลือกรอบวันที่ต้องการเข้าชม
+                </p>
+                <Link href="/visits" className="mt-4 inline-flex">
+                  <Button size="sm" variant="outline">
+                    เลือกสวนเพื่อจอง
+                  </Button>
+                </Link>
+              </div>
             ) : null}
           </div>
         ) : null}

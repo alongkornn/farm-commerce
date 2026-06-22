@@ -39,7 +39,11 @@ export function MobileNav() {
       : [
           { href: "/", label: "หน้าหลัก", icon: Home },
           { href: "/products", label: "สินค้า", icon: PackageSearch },
-          { href: "/visits", label: "เที่ยวสวน", icon: CalendarDays },
+          {
+            href: user?.userType === "buyer" ? "/bookings" : "/visits",
+            label: user?.userType === "buyer" ? "การจอง" : "เที่ยวสวน",
+            icon: CalendarDays,
+          },
           { href: "/cart", label: "ตะกร้า", icon: ShoppingBasket },
           { href: dashboardHref, label: "บัญชี", icon: UserRound },
         ];

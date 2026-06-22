@@ -5,15 +5,17 @@ import type { SellerProfile } from "@/lib/types";
 export function FarmCard({
   seller,
   index,
+  href,
 }: {
   seller: SellerProfile;
   index: number;
+  href?: string;
 }) {
   const colors = ["#d7e4b2", "#f2d597", "#b8d9d2"];
 
   return (
     <Link
-      href={`/farms/${seller.userId}`}
+      href={href ?? `/farms/${seller.userId}`}
       className="group grid min-h-52 overflow-hidden rounded-lg border border-border bg-surface sm:grid-cols-[120px_1fr]"
     >
       <div
