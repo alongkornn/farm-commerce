@@ -4,6 +4,7 @@ const labels: Record<string, string> = {
   pending: "รอตรวจสอบ",
   processing: "กำลังเตรียม",
   confirmed: "ยืนยันแล้ว",
+  approved: "ยืนยันแล้ว",
   shipped: "จัดส่งแล้ว",
   delivered: "สำเร็จ",
   completed: "สำเร็จ",
@@ -14,7 +15,10 @@ const labels: Record<string, string> = {
 
 export function StatusBadge({ status }: { status: string }) {
   const tone =
-    status === "completed" || status === "delivered" || status === "confirmed"
+    status === "completed" ||
+    status === "delivered" ||
+    status === "confirmed" ||
+    status === "approved"
       ? "success"
       : status === "cancelled" || status === "rejected"
         ? "danger"
