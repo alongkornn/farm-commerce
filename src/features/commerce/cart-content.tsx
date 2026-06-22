@@ -9,15 +9,20 @@ import { useCommerce } from "@/features/commerce/commerce-provider";
 import { formatMoney } from "@/lib/utils";
 
 export function CartContent() {
-  const { cart, updateQuantity, removeFromCart, hydrated, loading } =
-    useCommerce();
+  const {
+    cart,
+    updateQuantity,
+    removeFromCart,
+    hydrated,
+    pendingCartItemIds,
+  } = useCommerce();
   const subtotal = cart.reduce(
     (sum, item) => sum + item.product.priceSatang * item.quantity,
     0,
   );
   const shipping = cart.length ? 4000 : 0;
 
-  if (!hydrated || loading) {
+  if (!hydrated) {
     return <div className="h-72 animate-pulse rounded-lg bg-surface-muted" />;
   }
 
@@ -42,7 +47,12 @@ export function CartContent() {
     <div className="grid gap-6 xl:grid-cols-[1fr_340px]">
       <div className="divide-y divide-border rounded-lg border border-border bg-surface">
         {cart.map((item, index) => (
-          <div key={item.id} className="flex gap-4 p-4">
+          <div
+            key={item.id}
+            className={`flex gap-4 p-4 transition-opacity ${
+              pendingCartItemIds.includes(item.id) ? "opacity-70" : ""
+            }`}
+          >
             <div
               className={`grid size-20 shrink-0 place-items-center rounded-md ${
                 index ? "bg-[#cfe0aa]" : "bg-[#f1d880]"
@@ -74,8 +84,9 @@ export function CartContent() {
                       );
                     }
                   }}
+                  disabled={pendingCartItemIds.includes(item.id)}
                   aria-label={`นำ ${item.product.name} ออกจากตะกร้า`}
-                  className="self-start text-muted hover:text-danger"
+                  className="self-start text-muted hover:text-danger disabled:cursor-wait"
                 >
                   <Trash2 size={18} />
                 </button>
@@ -84,13 +95,22 @@ export function CartContent() {
                 <div className="flex items-center rounded-md border border-border">
                   <button
                     onClick={async () => {
-                      if (item.quantity === 1) {
-                        await removeFromCart(item.id);
-                      } else {
-                        await updateQuantity(item.id, item.quantity - 1);
+                      try {
+                        if (item.quantity === 1) {
+                          await removeFromCart(item.id);
+                        } else {
+                          await updateQuantity(item.id, item.quantity - 1);
+                        }
+                      } catch (error) {
+                        toast.error(
+                          error instanceof Error
+                            ? error.message
+                            : "เปลี่ยนจำนวนไม่สำเร็จ",
+                        );
                       }
                     }}
-                    className="grid size-8 place-items-center"
+                    disabled={pendingCartItemIds.includes(item.id)}
+                    className="grid size-8 place-items-center disabled:cursor-wait disabled:opacity-35"
                     aria-label={`ลดจำนวน ${item.product.name}`}
                   >
                     <Minus size={14} />
@@ -99,11 +119,22 @@ export function CartContent() {
                     {item.quantity}
                   </span>
                   <button
-                    onClick={() =>
-                      void updateQuantity(item.id, item.quantity + 1)
+                    onClick={async () => {
+                      try {
+                        await updateQuantity(item.id, item.quantity + 1);
+                      } catch (error) {
+                        toast.error(
+                          error instanceof Error
+                            ? error.message
+                            : "เปลี่ยนจำนวนไม่สำเร็จ",
+                        );
+                      }
+                    }}
+                    disabled={
+                      pendingCartItemIds.includes(item.id) ||
+                      item.quantity >= item.product.stock
                     }
-                    disabled={item.quantity >= item.product.stock}
-                    className="grid size-8 place-items-center disabled:opacity-35"
+                    className="grid size-8 place-items-center disabled:cursor-wait disabled:opacity-35"
                     aria-label={`เพิ่มจำนวน ${item.product.name}`}
                   >
                     <Plus size={14} />
