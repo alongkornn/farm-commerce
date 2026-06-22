@@ -17,6 +17,7 @@ type CommerceContextValue = {
   favorites: string[];
   hydrated: boolean;
   loading: boolean;
+  pendingCartItemIds: string[];
   addToCart: (product: Product, quantity?: number) => Promise<void>;
   updateQuantity: (itemId: string, quantity: number) => Promise<void>;
   removeFromCart: (itemId: string) => Promise<void>;
@@ -32,6 +33,8 @@ export function CommerceProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const [pendingCartItemIds, setPendingCartItemIds] = useState<string[]>([]);
   const isBuyer = user?.userType === "buyer";
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
 
@@ -39,6 +42,7 @@ export function CommerceProvider({ children }: { children: React.ReactNode }) {
     if (!isBuyer) {
       setCart([]);
       setFavorites([]);
+      setDataLoaded(true);
       return;
     }
     setLoading(true);
@@ -55,6 +59,7 @@ export function CommerceProvider({ children }: { children: React.ReactNode }) {
       );
     } finally {
       setLoading(false);
+      setDataLoaded(true);
     }
   }, [isBuyer, request]);
 
@@ -84,29 +89,53 @@ export function CommerceProvider({ children }: { children: React.ReactNode }) {
 
   const updateQuantity = useCallback(
     async (itemId: string, quantity: number) => {
+      if (pendingCartItemIds.includes(itemId)) return;
       const item = cart.find((value) => value.id === itemId);
       if (!item) return;
       const target = Math.max(1, Math.min(item.product.stock, quantity));
       if (target === item.quantity) return;
-      await request(`/cart/${item.id}`, { method: "DELETE" });
-      await request("/cart", {
-        method: "POST",
-        body: JSON.stringify({
-          productId: item.productId,
-          quantity: target,
-        }),
-      });
-      await reload();
+      setPendingCartItemIds((ids) => [...ids, itemId]);
+      setCart((items) =>
+        items.map((value) =>
+          value.id === itemId ? { ...value, quantity: target } : value,
+        ),
+      );
+      try {
+        await request(`/cart/${item.id}`, { method: "DELETE" });
+        await request("/cart", {
+          method: "POST",
+          body: JSON.stringify({
+            productId: item.productId,
+            quantity: target,
+          }),
+        });
+        await reload();
+      } catch (error) {
+        setCart((items) =>
+          items.map((value) =>
+            value.id === itemId ? { ...value, quantity: item.quantity } : value,
+          ),
+        );
+        throw error;
+      } finally {
+        setPendingCartItemIds((ids) => ids.filter((id) => id !== itemId));
+      }
     },
-    [cart, reload, request],
+    [cart, pendingCartItemIds, reload, request],
   );
 
   const removeFromCart = useCallback(
     async (itemId: string) => {
-      await request(`/cart/${itemId}`, { method: "DELETE" });
-      await reload();
+      if (pendingCartItemIds.includes(itemId)) return;
+      setPendingCartItemIds((ids) => [...ids, itemId]);
+      try {
+        await request(`/cart/${itemId}`, { method: "DELETE" });
+        await reload();
+      } finally {
+        setPendingCartItemIds((ids) => ids.filter((id) => id !== itemId));
+      }
     },
-    [reload, request],
+    [pendingCartItemIds, reload, request],
   );
 
   const clearCart = useCallback(async () => {
@@ -136,8 +165,9 @@ export function CommerceProvider({ children }: { children: React.ReactNode }) {
       cart,
       cartCount,
       favorites,
-      hydrated: authHydrated,
+      hydrated: authHydrated && dataLoaded,
       loading,
+      pendingCartItemIds,
       addToCart,
       updateQuantity,
       removeFromCart,
@@ -151,8 +181,10 @@ export function CommerceProvider({ children }: { children: React.ReactNode }) {
       cart,
       cartCount,
       clearCart,
+      dataLoaded,
       favorites,
       loading,
+      pendingCartItemIds,
       reload,
       removeFromCart,
       toggleFavorite,
