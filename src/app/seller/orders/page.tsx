@@ -42,7 +42,9 @@ export default function SellerOrdersPage() {
             >
               {resource.data.map((order) => (
                 <tr key={order.id}>
-                  <Cell className="font-bold">{order.id.slice(0, 8)}</Cell>
+                  <Cell className="font-mono text-xs font-bold">
+                    {order.paymentNumber || "รอเลขอ้างอิง"}
+                  </Cell>
                   <Cell>{order.recipientName}</Cell>
                   <Cell>{formatDateTime(order.createdAt)}</Cell>
                   <Cell className="font-bold">

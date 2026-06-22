@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { StoreShell } from "@/components/layout/store-shell";
 import { PageHeading } from "@/components/layout/page-heading";
 import { ProductExplorer } from "@/features/catalog/product-explorer";
-import { getProducts } from "@/lib/api/catalog";
-import type { Product } from "@/lib/types";
+import { getProductCategories, getProducts } from "@/lib/api/catalog";
+import type { Product, ProductCategory } from "@/lib/types";
 
 export const metadata: Metadata = { title: "สินค้าทั้งหมด" };
 
@@ -14,16 +14,19 @@ export default async function ProductsPage({
 }) {
   const filters = await searchParams;
   let products: Product[] = [];
-  try {
-    const response = await getProducts({
-      search: filters.search,
-      category: filters.category,
+  let categories: ProductCategory[] = [];
+  const [productResult, categoryResult] = await Promise.allSettled([
+    getProducts({
       page: 1,
-      limit: 40,
-    });
-    products = response.items;
-  } catch {
-    // The explorer renders an empty state when the API is unavailable.
+      limit: 100,
+    }),
+    getProductCategories(),
+  ]);
+  if (productResult.status === "fulfilled") {
+    products = productResult.value.items;
+  }
+  if (categoryResult.status === "fulfilled") {
+    categories = categoryResult.value;
   }
   return (
     <StoreShell>
@@ -34,6 +37,7 @@ export default async function ProductsPage({
       />
       <ProductExplorer
         products={products}
+        categories={categories}
         initialSearch={filters.search}
         initialCategory={filters.category}
       />

@@ -18,7 +18,13 @@ export default function OrderDetailPage() {
 
   return (
     <AccountShell
-      title={order ? `คำสั่งซื้อ ${order.id}` : "รายละเอียดคำสั่งซื้อ"}
+      title={
+        order
+          ? `รายการชำระเงิน ${
+              order.paymentNumber || "กำลังจัดเตรียมเลขอ้างอิง"
+            }`
+          : "รายละเอียดคำสั่งซื้อ"
+      }
       description={order ? formatDateTime(order.createdAt) : undefined}
     >
       <AuthGuard roles={["buyer"]}>

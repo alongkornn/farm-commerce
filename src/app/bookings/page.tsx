@@ -71,9 +71,12 @@ export default function BookingsPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h2 className="text-lg font-extrabold">
-                      การจอง {booking.id.slice(0, 8)}
+                      การจอง{" "}
+                      {booking.bookingNumber || "กำลังจัดเตรียมเลขอ้างอิง"}
                     </h2>
-                    <p className="mt-1 text-xs text-muted">{booking.id}</p>
+                    <p className="mt-1 text-xs text-muted">
+                      สร้างเมื่อ {formatDateTime(booking.createdAt)}
+                    </p>
                   </div>
                   <StatusBadge status={booking.status} />
                 </div>

@@ -43,8 +43,16 @@ export default function SellerVisitSlotsPage() {
                   </Cell>
                   <Cell>{formatDateTime(slot.endAt)}</Cell>
                   <Cell>{slot.capacity} คน</Cell>
-                  <Cell className="font-bold text-primary">
-                    {slot.active ? "เปิดรับจอง" : "ปิด"}
+                  <Cell
+                    className={`font-bold ${
+                      slot.available !== false ? "text-primary" : "text-muted"
+                    }`}
+                  >
+                    {!slot.active
+                      ? "ปิด"
+                      : slot.available !== false
+                        ? "เปิดรับจอง"
+                        : "มีผู้จองแล้ว"}
                   </Cell>
                 </tr>
               ))}

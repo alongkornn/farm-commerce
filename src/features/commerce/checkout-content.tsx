@@ -34,16 +34,23 @@ export function CheckoutContent() {
   async function confirmOrder() {
     setSubmitting(true);
     try {
-      await request<ApiEnvelope<CheckoutResponse>>("/orders/checkout", {
+      const response = await request<ApiEnvelope<CheckoutResponse>>(
+        "/orders/checkout",
+        {
         method: "POST",
         body: JSON.stringify({
           addressId: selectedAddress,
           idempotencyKey: crypto.randomUUID(),
           couponCode: couponCode.trim(),
         }),
-      });
+        },
+      );
       await reload();
-      toast.success("สร้างคำสั่งซื้อสำเร็จ");
+      toast.success(
+        response.data.paymentNumber
+          ? `สร้างรายการชำระเงิน ${response.data.paymentNumber} แล้ว`
+          : "สร้างคำสั่งซื้อสำเร็จ",
+      );
       router.push("/orders");
     } catch (error) {
       toast.error(

@@ -27,6 +27,9 @@ export default async function Home() {
     getVisitSlots().catch(() => []),
   ]);
   const products = productResult.items;
+  const availableVisitSlots = visitSlots.filter(
+    (slot) => slot.available !== false,
+  );
   return (
     <StoreShell>
       <section className="relative min-h-[560px] overflow-hidden bg-[#24472f] text-white md:min-h-[620px]">
@@ -160,10 +163,10 @@ export default async function Home() {
             </Link>
           </div>
           <div className="divide-y divide-border rounded-lg border border-border bg-surface">
-            {visitSlots.slice(0, 3).map((slot, index) => (
+            {availableVisitSlots.slice(0, 3).map((slot, index) => (
               <Link
                 key={slot.id}
-                href={`/visits?slot=${slot.id}`}
+                href={`/visits?sellerId=${slot.sellerId}`}
                 className="flex items-center gap-4 p-4 hover:bg-surface-muted"
               >
                 <span className="grid size-11 shrink-0 place-items-center rounded-md bg-accent-soft font-display text-sm font-extrabold text-[#725214]">
@@ -181,7 +184,7 @@ export default async function Home() {
                 <ArrowRight className="ml-auto shrink-0 text-muted" size={18} />
               </Link>
             ))}
-            {!visitSlots.length ? (
+            {!availableVisitSlots.length ? (
               <p className="p-8 text-center text-sm text-muted">
                 ยังไม่มีรอบเที่ยวชมสวน
               </p>
