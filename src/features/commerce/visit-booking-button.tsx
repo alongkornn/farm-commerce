@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -9,6 +10,7 @@ import { useAuth } from "@/features/auth/auth-provider";
 
 export function VisitBookingButton({ slotId }: { slotId: string }) {
   const { user, request } = useAuth();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -50,6 +52,8 @@ export function VisitBookingButton({ slotId }: { slotId: string }) {
               });
               setOpen(false);
               toast.success("ส่งคำขอจองแล้ว");
+              router.push("/bookings");
+              router.refresh();
             } catch (error) {
               toast.error(
                 error instanceof Error ? error.message : "จองไม่สำเร็จ",
