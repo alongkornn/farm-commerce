@@ -25,7 +25,12 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       <AuthProvider>
         <CommerceProvider>
           {children}
-          <Toaster richColors position="top-right" />
+          <Toaster
+            richColors
+            closeButton
+            duration={3000}
+            position="top-right"
+          />
         </CommerceProvider>
       </AuthProvider>
     </QueryClientProvider>
