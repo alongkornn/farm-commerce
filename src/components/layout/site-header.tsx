@@ -15,6 +15,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/features/auth/auth-provider";
+import { useCommerce } from "@/features/commerce/commerce-provider";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -30,6 +31,7 @@ export function SiteHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, hydrated, signOut } = useAuth();
+  const { cartCount } = useCommerce();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const dashboardHref =
@@ -97,10 +99,15 @@ export function SiteHeader() {
               </Link>
               <Link
                 href="/cart"
-                className="focus-ring grid size-10 place-items-center rounded-md hover:bg-surface-muted"
-                aria-label="ตะกร้าสินค้า"
+                className="focus-ring relative grid size-10 place-items-center rounded-md hover:bg-surface-muted"
+                aria-label={`ตะกร้าสินค้า ${cartCount} ชิ้น`}
               >
                 <ShoppingBasket size={21} />
+                {cartCount > 0 ? (
+                  <span className="absolute right-0 top-0 grid min-h-5 min-w-5 place-items-center rounded-full bg-danger px-1 text-[10px] font-extrabold leading-none text-white ring-2 ring-background">
+                    {cartCount > 99 ? "99+" : cartCount}
+                  </span>
+                ) : null}
               </Link>
             </>
           ) : null}

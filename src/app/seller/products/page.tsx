@@ -11,16 +11,29 @@ import { Input } from "@/components/ui/input";
 import { ResourceState } from "@/components/ui/resource-state";
 import { AuthGuard } from "@/features/auth/auth-guard";
 import { useAuth } from "@/features/auth/auth-provider";
-import type { Product, UploadResponse } from "@/lib/types";
+import type {
+  Product,
+  ProductCategory,
+  UploadResponse,
+} from "@/lib/types";
 import { useApiResource } from "@/lib/use-api-resource";
 import { formatMoney } from "@/lib/utils";
 
 export default function SellerProductsPage() {
   const { request } = useAuth();
   const resource = useApiResource<Product[]>("/seller/products", []);
+  const categories = useApiResource<ProductCategory[]>(
+    "/product-categories",
+    [],
+    true,
+    false,
+  );
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const editingCategoryAvailable =
+    !editing ||
+    categories.data.some((category) => category.name === editing.category);
 
   function edit(product?: Product) {
     setEditing(product ?? null);
@@ -165,7 +178,6 @@ export default function SellerProductsPage() {
           {[
             ["sku", "SKU", editing?.sku ?? ""],
             ["name", "ชื่อสินค้า", editing?.name ?? ""],
-            ["category", "ประเภท", editing?.category ?? ""],
             ["size", "ขนาด", editing?.size ?? ""],
           ].map(([name, label, value]) => (
             <label key={name} className="grid gap-1.5 text-sm font-bold">
@@ -173,6 +185,39 @@ export default function SellerProductsPage() {
               <Input name={name} defaultValue={value} required />
             </label>
           ))}
+          <label className="grid gap-1.5 text-sm font-bold">
+            ประเภท
+            <select
+              name="category"
+              defaultValue={editing?.category ?? ""}
+              disabled={categories.loading || categories.data.length === 0}
+              className="h-11 rounded-md border border-border bg-surface px-3 disabled:cursor-not-allowed disabled:opacity-60"
+              required
+            >
+              <option value="" disabled>
+                {categories.loading
+                  ? "กำลังโหลดหมวดสินค้า..."
+                  : categories.data.length
+                    ? "เลือกหมวดสินค้า"
+                    : "ยังไม่มีหมวดสินค้าที่เปิดใช้งาน"}
+              </option>
+              {categories.data.map((category) => (
+                <option key={category.id} value={category.name}>
+                  {category.name}
+                </option>
+              ))}
+              {!editingCategoryAvailable && editing ? (
+                <option value={editing.category}>
+                  {editing.category} (เลิกใช้งานแล้ว)
+                </option>
+              ) : null}
+            </select>
+            {categories.error ? (
+              <span className="text-xs font-medium text-danger">
+                {categories.error}
+              </span>
+            ) : null}
+          </label>
           <div className="grid grid-cols-2 gap-3">
             <label className="grid gap-1.5 text-sm font-bold">
               ราคา (บาท)
@@ -245,7 +290,12 @@ export default function SellerProductsPage() {
               }}
             />
           </label>
-          <Button type="submit">บันทึกสินค้า</Button>
+          <Button
+            type="submit"
+            disabled={categories.loading || categories.data.length === 0}
+          >
+            บันทึกสินค้า
+          </Button>
         </form>
       </Dialog>
     </OperationsShell>
