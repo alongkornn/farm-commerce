@@ -2,6 +2,7 @@ import { apiRequest } from "@/lib/api/client";
 import type {
   ApiEnvelope,
   Product,
+  ProductCategory,
   ProductPage,
   SellerProfile,
   VisitSlot,
@@ -37,6 +38,13 @@ export async function getProducts(filters: ProductFilters = {}) {
 
 export async function getProduct(id: string) {
   const response = await apiRequest<ApiEnvelope<Product>>(`/products/${id}`);
+  return response.data;
+}
+
+export async function getProductCategories() {
+  const response = await apiRequest<ApiEnvelope<ProductCategory[]>>(
+    "/product-categories",
+  );
   return response.data;
 }
 

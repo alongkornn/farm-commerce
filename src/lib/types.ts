@@ -68,10 +68,12 @@ export type VisitSlot = {
   endAt: string;
   capacity: number;
   active: boolean;
+  available: boolean;
 };
 
 export type Booking = {
   id: string;
+  bookingNumber: string;
   slotId: string;
   sellerId: string;
   buyerId: string;
@@ -95,6 +97,7 @@ export type OrderItem = {
 
 export type Order = {
   id: string;
+  paymentNumber: string;
   buyerId: string;
   sellerId: string;
   status: string;
@@ -222,6 +225,7 @@ export type DashboardSummary = {
 
 export type CheckoutResponse = {
   paymentId: string;
+  paymentNumber: string;
   status: string;
   amountSatang: number;
   discountSatang: number;

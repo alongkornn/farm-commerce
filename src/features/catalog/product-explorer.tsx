@@ -5,14 +5,16 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ProductCard } from "@/features/catalog/product-card";
-import type { Product } from "@/lib/types";
+import type { Product, ProductCategory } from "@/lib/types";
 
 export function ProductExplorer({
   products,
+  categories,
   initialSearch = "",
   initialCategory = "",
 }: {
   products: Product[];
+  categories: ProductCategory[];
   initialSearch?: string;
   initialCategory?: string;
 }) {
@@ -20,7 +22,13 @@ export function ProductExplorer({
   const [category, setCategory] = useState(initialCategory);
   const [sort, setSort] = useState("newest");
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const categories = Array.from(new Set(products.map((item) => item.category)));
+  const categoryNames = Array.from(
+    new Set([
+      ...categories.map((item) => item.name),
+      ...products.map((item) => item.category),
+      ...(initialCategory ? [initialCategory] : []),
+    ]),
+  );
 
   const filtered = useMemo(() => {
     const query = search.trim().toLocaleLowerCase("th");
@@ -67,7 +75,7 @@ export function ProductExplorer({
             className="focus-ring h-11 rounded-md border border-border bg-surface px-3 text-sm"
           >
             <option value="">ทุกประเภท</option>
-            {categories.map((item) => (
+            {categoryNames.map((item) => (
               <option key={item} value={item}>
                 {item}
               </option>

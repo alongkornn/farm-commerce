@@ -54,6 +54,7 @@ export default function SellerBookingsPage() {
           resource.data.length ? (
             <DataTable
               headers={[
+                "เลขการจอง",
                 "ผู้จอง",
                 "วันและเวลา",
                 "จำนวน",
@@ -64,6 +65,9 @@ export default function SellerBookingsPage() {
             >
               {resource.data.map((booking) => (
                 <tr key={booking.id}>
+                  <Cell className="font-mono text-xs font-bold">
+                    {booking.bookingNumber || "รอเลขอ้างอิง"}
+                  </Cell>
                   <Cell className="font-bold">{booking.bookerName}</Cell>
                   <Cell>{formatDateTime(booking.slot.startAt)}</Cell>
                   <Cell>{booking.visitorCount} คน</Cell>

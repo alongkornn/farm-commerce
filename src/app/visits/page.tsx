@@ -80,6 +80,8 @@ function FarmSlots({
   seller: SellerProfile | null;
   slots: VisitSlot[];
 }) {
+  const availableSlots = slots.filter((slot) => slot.available !== false);
+
   return (
     <StoreShell>
       <PageHeading
@@ -101,9 +103,9 @@ function FarmSlots({
         }
       />
       <div className="container-page py-8">
-        {slots.length ? (
+        {availableSlots.length ? (
           <div className="grid gap-4 lg:grid-cols-2">
-            {slots.map((slot) => (
+            {availableSlots.map((slot) => (
               <article
                 key={slot.id}
                 className="rounded-lg border border-border bg-surface p-5"

@@ -58,7 +58,10 @@ export default function OrdersPage() {
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <p className="font-bold">{order.id}</p>
+                    <p className="font-bold">
+                      รายการชำระเงิน{" "}
+                      {order.paymentNumber || "กำลังจัดเตรียมเลขอ้างอิง"}
+                    </p>
                     <p className="mt-1 text-xs text-muted">
                       {formatDateTime(order.createdAt)}
                     </p>
