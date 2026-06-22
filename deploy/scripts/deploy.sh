@@ -18,11 +18,8 @@ if [ ! -f "$ENV_FILE" ]; then
   exit 1
 fi
 
-set -a
-. "$ENV_FILE"
-set +a
-
-: "${APP_URL:?APP_URL is required in .env}"
+. "$DEPLOY_DIR/scripts/env.sh"
+APP_URL=$(require_env APP_URL "$ENV_FILE")
 
 CURRENT_IMAGE=""
 if [ -f "$LAST_IMAGE_FILE" ]; then
