@@ -58,6 +58,7 @@ export type SellerProfile = {
   description: string;
   address: string;
   status: "pending" | "approved" | "rejected" | "suspended";
+  deleted: boolean;
   reviewNote?: string;
 };
 

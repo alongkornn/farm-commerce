@@ -10,6 +10,7 @@ const labels: Record<string, string> = {
   completed: "สำเร็จ",
   cancelled: "ยกเลิก",
   rejected: "ไม่อนุมัติ",
+  suspended: "ระงับ",
   refunded: "คืนเงินแล้ว",
 };
 

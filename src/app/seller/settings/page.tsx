@@ -20,6 +20,7 @@ const emptyProfile: SellerProfile = {
   description: "",
   address: "",
   status: "pending",
+  deleted: false,
 };
 
 export default function SellerSettingsPage() {
