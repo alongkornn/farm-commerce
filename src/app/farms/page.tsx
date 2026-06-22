@@ -5,16 +5,16 @@ import { StoreShell } from "@/components/layout/store-shell";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FarmCard } from "@/features/catalog/farm-card";
 import { getSellers } from "@/lib/api/catalog";
-import { mockSellers } from "@/lib/mock-data";
+import type { SellerProfile } from "@/lib/types";
 
 export const metadata: Metadata = { title: "สวนทั้งหมด" };
 
 export default async function FarmsPage() {
-  let sellers = mockSellers;
+  let sellers: SellerProfile[] = [];
   try {
     sellers = await getSellers();
   } catch {
-    // Keep mock data available for local UI review if the API is offline.
+    // The page renders an empty state when the API is unavailable.
   }
   return (
     <StoreShell>

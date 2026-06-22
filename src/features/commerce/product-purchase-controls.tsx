@@ -53,9 +53,15 @@ export function ProductPurchaseControls({ product }: { product: Product }) {
         <Button
           size="lg"
           className="flex-1"
-          onClick={() => {
-            addToCart(product, quantity);
-            toast.success(`เพิ่ม ${product.name} ลงตะกร้าแล้ว`);
+          onClick={async () => {
+            try {
+              await addToCart(product, quantity);
+              toast.success(`เพิ่ม ${product.name} ลงตะกร้าแล้ว`);
+            } catch (error) {
+              toast.error(
+                error instanceof Error ? error.message : "เพิ่มสินค้าไม่สำเร็จ",
+              );
+            }
           }}
         >
           <ShoppingBasket size={19} />
@@ -68,11 +74,17 @@ export function ProductPurchaseControls({ product }: { product: Product }) {
           aria-label={
             favorite ? "นำออกจากรายการโปรด" : "เพิ่มเป็นรายการโปรด"
           }
-          onClick={() => {
-            const added = toggleFavorite(product.id);
-            toast.success(
-              added ? "เพิ่มในรายการโปรดแล้ว" : "นำออกจากรายการโปรดแล้ว",
-            );
+          onClick={async () => {
+            try {
+              const added = await toggleFavorite(product.id);
+              toast.success(
+                added ? "เพิ่มในรายการโปรดแล้ว" : "นำออกจากรายการโปรดแล้ว",
+              );
+            } catch (error) {
+              toast.error(
+                error instanceof Error ? error.message : "ดำเนินการไม่สำเร็จ",
+              );
+            }
           }}
         >
           <Heart size={19} fill={favorite ? "currentColor" : "none"} />

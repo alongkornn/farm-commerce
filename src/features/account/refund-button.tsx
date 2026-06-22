@@ -5,8 +5,10 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
+import { useAuth } from "@/features/auth/auth-provider";
 
-export function RefundButton() {
+export function RefundButton({ orderId }: { orderId: string }) {
+  const { request } = useAuth();
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -29,11 +31,21 @@ export function RefundButton() {
         onClose={() => setOpen(false)}
       >
         <form
-          onSubmit={(event) => {
+          onSubmit={async (event) => {
             event.preventDefault();
-            setSubmitted(true);
-            setOpen(false);
-            toast.success("ส่งคำขอคืนเงินแล้ว");
+            try {
+              await request(`/orders/${orderId}/refunds`, {
+                method: "POST",
+                body: JSON.stringify({ reason }),
+              });
+              setSubmitted(true);
+              setOpen(false);
+              toast.success("ส่งคำขอคืนเงินแล้ว");
+            } catch (error) {
+              toast.error(
+                error instanceof Error ? error.message : "ส่งคำขอไม่สำเร็จ",
+              );
+            }
           }}
           className="grid gap-4"
         >

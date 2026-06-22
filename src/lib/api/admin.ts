@@ -1,5 +1,11 @@
 import { apiRequest } from "@/lib/api/client";
-import type { ApiEnvelope, SellerProfile } from "@/lib/types";
+import type {
+  ApiEnvelope,
+  Coupon,
+  Payout,
+  Refund,
+  SellerProfile,
+} from "@/lib/types";
 
 type Token = string;
 
@@ -14,7 +20,7 @@ export async function getPendingSellers(token: Token) {
 export async function updateSellerApproval(
   token: Token,
   id: string,
-  payload: { status: string; reviewNote?: string },
+  payload: { status: string; note?: string },
 ) {
   return apiRequest<void>(`/admin/sellers/${id}/status`, {
     method: "PATCH",
@@ -24,14 +30,26 @@ export async function updateSellerApproval(
 }
 
 export async function getCoupons(token: Token) {
-  const response = await apiRequest<ApiEnvelope<unknown[]>>("/admin/coupons", {
+  const response = await apiRequest<ApiEnvelope<Coupon[]>>("/admin/coupons", {
     token,
   });
   return response.data;
 }
 
-export async function createCoupon(token: Token, payload: object) {
-  return apiRequest<ApiEnvelope<unknown>>("/admin/coupons", {
+export async function createCoupon(
+  token: Token,
+  payload: {
+    code: string;
+    discountType: "percent" | "fixed";
+    discountValue: number;
+    minimumSatang: number;
+    maximumDiscount: number;
+    usageLimit: number;
+    startsAt: string;
+    endsAt: string;
+  },
+) {
+  return apiRequest<ApiEnvelope<Coupon>>("/admin/coupons", {
     method: "POST",
     token,
     body: JSON.stringify(payload),
@@ -39,7 +57,7 @@ export async function createCoupon(token: Token, payload: object) {
 }
 
 export async function getRefunds(token: Token) {
-  const response = await apiRequest<ApiEnvelope<unknown[]>>("/admin/refunds", {
+  const response = await apiRequest<ApiEnvelope<Refund[]>>("/admin/refunds", {
     token,
   });
   return response.data;
@@ -58,7 +76,7 @@ export async function updateRefundStatus(
 }
 
 export async function runPayouts(token: Token) {
-  return apiRequest<ApiEnvelope<unknown>>("/admin/payouts/run", {
+  return apiRequest<ApiEnvelope<Payout[]>>("/admin/payouts/run", {
     method: "POST",
     token,
   });

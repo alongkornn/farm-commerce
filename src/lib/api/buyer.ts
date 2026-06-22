@@ -7,12 +7,19 @@ import type {
   Notification,
   Order,
   Product,
+  Refund,
+  Review,
+  CheckoutResponse,
+  User,
 } from "@/lib/types";
 
 type Token = string;
 
 export async function getProfile(token: Token) {
-  return apiRequest<ApiEnvelope<unknown>>("/account/profile", { token });
+  const response = await apiRequest<ApiEnvelope<User>>("/account/profile", {
+    token,
+  });
+  return response.data;
 }
 
 export async function updateProfile(
@@ -50,7 +57,7 @@ export async function checkout(
   token: Token,
   payload: { addressId: string; idempotencyKey: string; couponCode?: string },
 ) {
-  return apiRequest<ApiEnvelope<Order>>("/orders/checkout", {
+  return apiRequest<ApiEnvelope<CheckoutResponse>>("/orders/checkout", {
     method: "POST",
     token,
     body: JSON.stringify(payload),
@@ -124,10 +131,12 @@ export async function deleteAddress(token: Token, id: string) {
 }
 
 export async function getFavorites(token: Token) {
-  const response = await apiRequest<ApiEnvelope<Product[]>>("/favorites", {
+  const response = await apiRequest<
+    ApiEnvelope<Array<{ product: Product; productId: string }>>
+  >("/favorites", {
     token,
   });
-  return response.data;
+  return response.data.map((favorite) => favorite.product);
 }
 
 export async function addFavorite(token: Token, productId: string) {
@@ -166,4 +175,66 @@ export async function requestRefund(
     token,
     body: JSON.stringify({ reason }),
   });
+}
+
+export async function getRefunds(token: Token) {
+  const response = await apiRequest<ApiEnvelope<Refund[]>>("/refunds", {
+    token,
+  });
+  return response.data;
+}
+
+export async function saveReview(
+  token: Token,
+  productId: string,
+  payload: { rating: number; comment: string },
+) {
+  const response = await apiRequest<ApiEnvelope<Review>>(
+    `/products/${productId}/reviews`,
+    {
+      method: "POST",
+      token,
+      body: JSON.stringify(payload),
+    },
+  );
+  return response.data;
+}
+
+export async function changePassword(
+  token: Token,
+  payload: { currentPassword: string; newPassword: string },
+) {
+  return apiRequest<void>("/account/change-password", {
+    method: "POST",
+    token,
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function requestVerificationToken(token: Token) {
+  return apiRequest<{ message: string; developmentToken?: string }>(
+    "/account/verification-token",
+    { method: "POST", token },
+  );
+}
+
+export async function verifyEmail(token: string) {
+  return apiRequest<void>("/account/verify-email", {
+    method: "POST",
+    body: JSON.stringify({ token }),
+  });
+}
+
+export async function resetPassword(payload: {
+  token: string;
+  newPassword: string;
+}) {
+  return apiRequest<void>("/account/reset-password", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function closeAccount(token: Token) {
+  return apiRequest<void>("/account", { method: "DELETE", token });
 }

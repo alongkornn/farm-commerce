@@ -28,9 +28,14 @@ The frontend runs at `http://localhost:3000`. Set the backend URL in
 NEXT_PUBLIC_API_URL=https://api-dev.nexdev-tech.com/api/v1
 ```
 
-The repository contains representative mock data so every screen can be
-reviewed while the backend is unavailable. API functions matching the backend
-routes live in `src/lib/api`.
+All application screens use the configured backend API. Empty API collections
+render explicit empty states instead of sample data. API functions matching the
+backend routes live in `src/lib/api`.
+
+The payment webhook is intentionally not called by the browser. It is a
+server-to-server endpoint requiring the payment provider signature. The backend
+currently has no endpoint for listing all users, so the admin users screen
+states that limitation instead of showing sample users.
 
 ## Verification
 

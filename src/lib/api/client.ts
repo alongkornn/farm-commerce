@@ -74,3 +74,21 @@ export async function register(
   );
   return response.data;
 }
+
+export async function refreshSession(refreshToken: string) {
+  const response = await apiRequest<ApiEnvelope<AuthResponse>>(
+    "/refresh-token",
+    {
+      method: "POST",
+      body: JSON.stringify({ refreshToken }),
+    },
+  );
+  return response.data;
+}
+
+export async function logout(accessToken: string) {
+  return apiRequest<void>("/logout", {
+    method: "POST",
+    token: accessToken,
+  });
+}

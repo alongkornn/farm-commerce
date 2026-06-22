@@ -1,50 +1,57 @@
 "use client";
 
-import { CheckCircle2, CreditCard, MapPin } from "lucide-react";
+import { CreditCard, MapPin } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ResourceState } from "@/components/ui/resource-state";
+import { useAuth } from "@/features/auth/auth-provider";
 import { useCommerce } from "@/features/commerce/commerce-provider";
-import { mockAddresses } from "@/lib/mock-data";
+import type { Address, ApiEnvelope, CheckoutResponse } from "@/lib/types";
+import { useApiResource } from "@/lib/use-api-resource";
 import { formatMoney } from "@/lib/utils";
 
 export function CheckoutContent() {
   const router = useRouter();
-  const { cart, clearCart } = useCommerce();
-  const [coupon, setCoupon] = useState("");
-  const [discount, setDiscount] = useState(0);
+  const { request } = useAuth();
+  const { cart, reload } = useCommerce();
+  const addresses = useApiResource<Address[]>("/addresses", []);
+  const [addressId, setAddressId] = useState("");
+  const [couponCode, setCouponCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const address = mockAddresses[0];
   const subtotal = cart.reduce(
     (sum, item) => sum + item.product.priceSatang * item.quantity,
     0,
   );
-  const shipping = cart.length ? 4000 : 0;
-  const total = Math.max(0, subtotal + shipping - discount);
-
-  function applyCoupon() {
-    if (coupon.trim().toUpperCase() === "FRESH100") {
-      setDiscount(10000);
-      toast.success("ใช้คูปอง FRESH100 สำเร็จ");
-    } else {
-      setDiscount(0);
-      toast.error("ไม่พบคูปองนี้ ลองใช้ FRESH100");
-    }
-  }
+  const selectedAddress =
+    addressId ||
+    addresses.data.find((address) => address.isDefault)?.id ||
+    addresses.data[0]?.id ||
+    "";
 
   async function confirmOrder() {
-    if (!cart.length) {
-      toast.error("ไม่มีสินค้าในตะกร้า");
-      router.push("/products");
-      return;
-    }
     setSubmitting(true);
-    await new Promise((resolve) => window.setTimeout(resolve, 500));
-    clearCart();
-    toast.success("สร้างคำสั่งซื้อสำเร็จ");
-    router.push("/orders");
+    try {
+      await request<ApiEnvelope<CheckoutResponse>>("/orders/checkout", {
+        method: "POST",
+        body: JSON.stringify({
+          addressId: selectedAddress,
+          idempotencyKey: crypto.randomUUID(),
+          couponCode: couponCode.trim(),
+        }),
+      });
+      await reload();
+      toast.success("สร้างคำสั่งซื้อสำเร็จ");
+      router.push("/orders");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "สร้างคำสั่งซื้อไม่สำเร็จ",
+      );
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -55,82 +62,72 @@ export function CheckoutContent() {
             <MapPin size={20} className="text-primary" />
             ที่อยู่จัดส่ง
           </h2>
-          <label className="mt-4 flex cursor-pointer gap-3 rounded-md border border-primary bg-surface-muted p-4">
-            <input
-              type="radio"
-              defaultChecked
-              name="address"
-              className="accent-primary"
-            />
-            <span className="text-sm leading-6">
-              <strong>
-                {address.label} · {address.recipient}
-              </strong>
-              <br />
-              <span className="text-muted">
-                {address.line1} {address.subdistrict} {address.district}{" "}
-                {address.province} {address.postalCode}
-                <br />
-                {address.phone}
-              </span>
-            </span>
-          </label>
+          <ResourceState {...addresses} onRetry={addresses.reload} />
+          {!addresses.loading && !addresses.error ? (
+            <div className="mt-4 grid gap-3">
+              {addresses.data.map((address) => (
+                <label
+                  key={address.id}
+                  className="flex cursor-pointer gap-3 rounded-md border border-border p-4 has-checked:border-primary has-checked:bg-surface-muted"
+                >
+                  <input
+                    type="radio"
+                    checked={selectedAddress === address.id}
+                    onChange={() => setAddressId(address.id)}
+                    className="accent-primary"
+                  />
+                  <span className="text-sm leading-6">
+                    <strong>
+                      {address.label} · {address.recipient}
+                    </strong>
+                    <br />
+                    <span className="text-muted">
+                      {address.line1} {address.subdistrict} {address.district}{" "}
+                      {address.province} {address.postalCode}
+                    </span>
+                  </span>
+                </label>
+              ))}
+              {!addresses.data.length ? (
+                <p className="text-sm text-muted">
+                  ยังไม่มีที่อยู่ กรุณาเพิ่มที่หน้าที่อยู่จัดส่ง
+                </p>
+              ) : null}
+            </div>
+          ) : null}
         </section>
         <section className="rounded-lg border border-border bg-surface p-5">
           <h2 className="flex items-center gap-2 text-lg font-extrabold">
             <CreditCard size={20} className="text-primary" />
-            ส่วนลดและการชำระเงิน
+            คูปองและการชำระเงิน
           </h2>
-          <div className="mt-4 flex gap-2">
-            <Input
-              value={coupon}
-              onChange={(event) => setCoupon(event.target.value)}
-              placeholder="รหัสคูปอง"
-            />
-            <Button variant="outline" onClick={applyCoupon}>
-              ใช้คูปอง
-            </Button>
-          </div>
-          {discount ? (
-            <p className="mt-3 flex items-center gap-2 text-sm font-bold text-primary">
-              <CheckCircle2 size={17} />
-              ลดเพิ่ม {formatMoney(discount)}
-            </p>
-          ) : null}
+          <Input
+            className="mt-4"
+            value={couponCode}
+            onChange={(event) => setCouponCode(event.target.value)}
+            placeholder="รหัสคูปอง (ถ้ามี)"
+          />
           <p className="mt-4 rounded-md bg-surface-muted p-4 text-sm text-muted">
-            ในโหมด local ระบบจะจำลองการสร้างคำสั่งซื้อโดยไม่เรียกเก็บเงินจริง
+            Backend จะตรวจคูปองและสร้างรายการชำระเงินเมื่อยืนยัน
           </p>
         </section>
       </div>
       <aside className="h-fit rounded-lg border border-border bg-surface p-5">
-        <h2 className="text-lg font-extrabold">ยอดชำระ</h2>
+        <h2 className="text-lg font-extrabold">ยอดชำระโดยประมาณ</h2>
         <p className="mt-5 flex justify-between text-sm">
           <span className="text-muted">สินค้า</span>
           <strong>{formatMoney(subtotal)}</strong>
         </p>
-        <p className="mt-3 flex justify-between text-sm">
-          <span className="text-muted">ค่าจัดส่ง</span>
-          <strong>{formatMoney(shipping)}</strong>
-        </p>
-        {discount ? (
-          <p className="mt-3 flex justify-between text-sm text-primary">
-            <span>ส่วนลด</span>
-            <strong>-{formatMoney(discount)}</strong>
-          </p>
-        ) : null}
-        <p className="mt-5 flex justify-between border-t border-border pt-5">
-          <span className="font-bold">รวมทั้งหมด</span>
-          <strong className="font-display text-xl text-primary">
-            {formatMoney(total)}
-          </strong>
+        <p className="mt-3 text-xs leading-5 text-muted">
+          ค่าจัดส่งและส่วนลดจะคำนวณโดย backend
         </p>
         <Button
           size="lg"
           className="mt-5 w-full"
-          disabled={submitting || !cart.length}
+          disabled={submitting || !cart.length || !selectedAddress}
           onClick={confirmOrder}
         >
-          {submitting ? "กำลังสร้างคำสั่งซื้อ..." : "ยืนยันและชำระเงิน"}
+          {submitting ? "กำลังสร้างคำสั่งซื้อ..." : "ยืนยันคำสั่งซื้อ"}
         </Button>
       </aside>
     </div>

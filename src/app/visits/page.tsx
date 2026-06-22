@@ -1,23 +1,22 @@
 import { CalendarDays, Clock3, MapPin, Users } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { PageHeading } from "@/components/layout/page-heading";
 import { StoreShell } from "@/components/layout/store-shell";
-import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { VisitBookingButton } from "@/features/commerce/visit-booking-button";
 import { getSellers, getVisitSlots } from "@/lib/api/catalog";
-import { mockSellers, mockVisitSlots } from "@/lib/mock-data";
+import type { SellerProfile, VisitSlot } from "@/lib/types";
 import { formatDateTime } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "เที่ยวชมสวน" };
 
 export default async function VisitsPage() {
-  let slots = mockVisitSlots;
-  let sellers = mockSellers;
+  let slots: VisitSlot[] = [];
+  let sellers: SellerProfile[] = [];
   try {
     [slots, sellers] = await Promise.all([getVisitSlots(), getSellers()]);
   } catch {
-    // Keep mock data available for local UI review if the API is offline.
+    // The page renders an empty state when the API is unavailable.
   }
   return (
     <StoreShell>
@@ -29,10 +28,10 @@ export default async function VisitsPage() {
       <div className="container-page py-8">
         {slots.length ? (
           <div className="grid gap-4 lg:grid-cols-2">
-            {slots.map((slot, index) => {
-          const seller =
-            sellers.find((item) => item.userId === slot.sellerId) ??
-            mockSellers[index % mockSellers.length];
+            {slots.map((slot) => {
+          const seller = sellers.find(
+            (item) => item.userId === slot.sellerId,
+          );
           return (
             <article
               key={slot.id}
@@ -43,10 +42,12 @@ export default async function VisitsPage() {
                   <CalendarDays size={23} />
                 </span>
                 <div className="min-w-0">
-                  <h2 className="text-lg font-extrabold">{seller.farmName}</h2>
+                  <h2 className="text-lg font-extrabold">
+                    {seller?.farmName ?? "สวน"}
+                  </h2>
                   <p className="mt-1 flex items-start gap-1.5 text-xs text-muted">
                     <MapPin size={14} className="mt-0.5 shrink-0" />
-                    {seller.address}
+                    {seller?.address ?? "ไม่ระบุที่อยู่"}
                   </p>
                 </div>
               </div>
@@ -62,9 +63,7 @@ export default async function VisitsPage() {
               </div>
               <div className="mt-4 flex items-center justify-between">
                 <span className="text-xs font-bold text-primary">เปิดรับจอง</span>
-                <Link href={`/login?next=/visits?slot=${slot.id}`}>
-                  <Button size="sm">เลือกช่วงเวลานี้</Button>
-                </Link>
+                <VisitBookingButton slotId={slot.id} />
               </div>
             </article>
           );

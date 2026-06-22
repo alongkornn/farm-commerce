@@ -1,5 +1,6 @@
 import { AccountShell } from "@/components/layout/account-shell";
 import { CheckoutContent } from "@/features/commerce/checkout-content";
+import { AuthGuard } from "@/features/auth/auth-guard";
 
 export default function CheckoutPage() {
   return (
@@ -7,7 +8,9 @@ export default function CheckoutPage() {
       title="ยืนยันคำสั่งซื้อ"
       description="ตรวจสอบที่อยู่ รายการสินค้า และยอดชำระ"
     >
-      <CheckoutContent />
+      <AuthGuard roles={["buyer"]}>
+        <CheckoutContent />
+      </AuthGuard>
     </AccountShell>
   );
 }

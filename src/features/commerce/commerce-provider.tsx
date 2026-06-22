@@ -8,126 +8,148 @@ import {
   useMemo,
   useState,
 } from "react";
-import { mockCartItems } from "@/lib/mock-data";
-import type { CartItem, Product } from "@/lib/types";
+import { useAuth } from "@/features/auth/auth-provider";
+import type { ApiEnvelope, CartItem, Product } from "@/lib/types";
 
 type CommerceContextValue = {
   cart: CartItem[];
   favorites: string[];
   hydrated: boolean;
-  addToCart: (product: Product, quantity?: number) => void;
-  updateQuantity: (itemId: string, quantity: number) => void;
-  removeFromCart: (itemId: string) => void;
-  clearCart: () => void;
-  toggleFavorite: (productId: string) => boolean;
+  loading: boolean;
+  addToCart: (product: Product, quantity?: number) => Promise<void>;
+  updateQuantity: (itemId: string, quantity: number) => Promise<void>;
+  removeFromCart: (itemId: string) => Promise<void>;
+  clearCart: () => Promise<void>;
+  toggleFavorite: (productId: string) => Promise<boolean>;
+  reload: () => Promise<void>;
 };
 
 const CommerceContext = createContext<CommerceContextValue | null>(null);
-const STORAGE_KEY = "farm-commerce-demo-data";
 
 export function CommerceProvider({ children }: { children: React.ReactNode }) {
-  const [cart, setCart] = useState<CartItem[]>(mockCartItems);
-  const [favorites, setFavorites] = useState<string[]>(["p-1", "p-2", "p-3"]);
-  const [hydrated, setHydrated] = useState(false);
+  const { user, hydrated: authHydrated, request } = useAuth();
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const isBuyer = user?.userType === "buyer";
 
-  useEffect(() => {
+  const reload = useCallback(async () => {
+    if (!isBuyer) {
+      setCart([]);
+      setFavorites([]);
+      return;
+    }
+    setLoading(true);
     try {
-      const stored = window.localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const data = JSON.parse(stored) as {
-          cart?: CartItem[];
-          favorites?: string[];
-        };
-        if (data.cart) setCart(data.cart);
-        if (data.favorites) setFavorites(data.favorites);
-      }
+      const [cartResponse, favoriteResponse] = await Promise.all([
+        request<ApiEnvelope<CartItem[]>>("/cart"),
+        request<
+          ApiEnvelope<Array<{ productId: string; product: Product }>>
+        >("/favorites"),
+      ]);
+      setCart(cartResponse.data ?? []);
+      setFavorites(
+        (favoriteResponse.data ?? []).map((favorite) => favorite.productId),
+      );
     } finally {
-      setHydrated(true);
+      setLoading(false);
     }
-  }, []);
+  }, [isBuyer, request]);
 
   useEffect(() => {
-    if (hydrated) {
-      window.localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ cart, favorites }),
-      );
-    }
-  }, [cart, favorites, hydrated]);
+    if (!authHydrated) return;
+    const timer = window.setTimeout(() => void reload(), 0);
+    return () => window.clearTimeout(timer);
+  }, [authHydrated, reload]);
 
-  const addToCart = useCallback((product: Product, quantity = 1) => {
-    setCart((items) => {
-      const existing = items.find((item) => item.productId === product.id);
-      if (existing) {
-        return items.map((item) =>
-          item.id === existing.id
-            ? {
-                ...item,
-                quantity: Math.min(product.stock, item.quantity + quantity),
-              }
-            : item,
-        );
-      }
-      return [
-        ...items,
-        {
-          id: `cart-${product.id}`,
+  const addToCart = useCallback(
+    async (product: Product, quantity = 1) => {
+      if (!isBuyer) throw new Error("กรุณาเข้าสู่ระบบด้วยบัญชีผู้ซื้อ");
+      const existing = cart.find((item) => item.productId === product.id);
+      const available = product.stock - (existing?.quantity ?? 0);
+      if (available <= 0) throw new Error("สินค้าในตะกร้าครบจำนวนที่มีแล้ว");
+      await request("/cart", {
+        method: "POST",
+        body: JSON.stringify({
           productId: product.id,
-          quantity: Math.min(product.stock, quantity),
-          product,
-        },
-      ];
-    });
-  }, []);
+          quantity: Math.min(available, quantity),
+        }),
+      });
+      await reload();
+    },
+    [cart, isBuyer, reload, request],
+  );
 
-  const updateQuantity = useCallback((itemId: string, quantity: number) => {
-    setCart((items) =>
-      items.map((item) =>
-        item.id === itemId
-          ? {
-              ...item,
-              quantity: Math.max(1, Math.min(item.product.stock, quantity)),
-            }
-          : item,
+  const updateQuantity = useCallback(
+    async (itemId: string, quantity: number) => {
+      const item = cart.find((value) => value.id === itemId);
+      if (!item) return;
+      const target = Math.max(1, Math.min(item.product.stock, quantity));
+      if (target === item.quantity) return;
+      await request(`/cart/${item.id}`, { method: "DELETE" });
+      await request("/cart", {
+        method: "POST",
+        body: JSON.stringify({
+          productId: item.productId,
+          quantity: target,
+        }),
+      });
+      await reload();
+    },
+    [cart, reload, request],
+  );
+
+  const removeFromCart = useCallback(
+    async (itemId: string) => {
+      await request(`/cart/${itemId}`, { method: "DELETE" });
+      await reload();
+    },
+    [reload, request],
+  );
+
+  const clearCart = useCallback(async () => {
+    await Promise.all(
+      cart.map((item) =>
+        request(`/cart/${item.id}`, { method: "DELETE" }),
       ),
     );
-  }, []);
+    await reload();
+  }, [cart, reload, request]);
 
-  const removeFromCart = useCallback((itemId: string) => {
-    setCart((items) => items.filter((item) => item.id !== itemId));
-  }, []);
-
-  const clearCart = useCallback(() => setCart([]), []);
-
-  const toggleFavorite = useCallback((productId: string) => {
-    let added = false;
-    setFavorites((items) => {
-      if (items.includes(productId)) {
-        return items.filter((id) => id !== productId);
-      }
-      added = true;
-      return [...items, productId];
-    });
-    return added;
-  }, []);
+  const toggleFavorite = useCallback(
+    async (productId: string) => {
+      if (!isBuyer) throw new Error("กรุณาเข้าสู่ระบบด้วยบัญชีผู้ซื้อ");
+      const added = !favorites.includes(productId);
+      await request(`/favorites/${productId}`, {
+        method: added ? "POST" : "DELETE",
+      });
+      await reload();
+      return added;
+    },
+    [favorites, isBuyer, reload, request],
+  );
 
   const value = useMemo(
     () => ({
       cart,
       favorites,
-      hydrated,
+      hydrated: authHydrated,
+      loading,
       addToCart,
       updateQuantity,
       removeFromCart,
       clearCart,
       toggleFavorite,
+      reload,
     }),
     [
       addToCart,
+      authHydrated,
       cart,
       clearCart,
       favorites,
-      hydrated,
+      loading,
+      reload,
       removeFromCart,
       toggleFavorite,
       updateQuantity,

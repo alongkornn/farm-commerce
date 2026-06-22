@@ -1,5 +1,6 @@
 import { AccountShell } from "@/components/layout/account-shell";
 import { CartContent } from "@/features/commerce/cart-content";
+import { AuthGuard } from "@/features/auth/auth-guard";
 
 export default function CartPage() {
   return (
@@ -7,7 +8,9 @@ export default function CartPage() {
       title="ตะกร้าสินค้า"
       description="ตรวจสอบจำนวนและราคาก่อนดำเนินการสั่งซื้อ"
     >
-      <CartContent />
+      <AuthGuard roles={["buyer"]}>
+        <CartContent />
+      </AuthGuard>
     </AccountShell>
   );
 }

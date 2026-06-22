@@ -9,6 +9,7 @@ import {
   Package,
   Settings,
   ShoppingBasket,
+  RotateCcw,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -23,6 +24,7 @@ const links = [
   { href: "/favorites", label: "รายการโปรด", icon: Heart },
   { href: "/addresses", label: "ที่อยู่", icon: MapPinHouse },
   { href: "/notifications", label: "การแจ้งเตือน", icon: Bell },
+  { href: "/refunds", label: "การคืนเงิน", icon: RotateCcw },
   { href: "/account/settings", label: "ตั้งค่าบัญชี", icon: Settings },
 ];
 

@@ -51,11 +51,17 @@ export function ProductCard({
         )}
         </Link>
         <button
-          onClick={() => {
-            const added = toggleFavorite(product.id);
-            toast.success(
-              added ? "เพิ่มในรายการโปรดแล้ว" : "นำออกจากรายการโปรดแล้ว",
-            );
+          onClick={async () => {
+            try {
+              const added = await toggleFavorite(product.id);
+              toast.success(
+                added ? "เพิ่มในรายการโปรดแล้ว" : "นำออกจากรายการโปรดแล้ว",
+              );
+            } catch (error) {
+              toast.error(
+                error instanceof Error ? error.message : "ดำเนินการไม่สำเร็จ",
+              );
+            }
           }}
           className={cn(
             "focus-ring absolute right-3 top-3 grid size-9 place-items-center rounded-full bg-white/90 text-foreground shadow-sm hover:text-danger",
@@ -85,9 +91,17 @@ export function ProductCard({
             {product.size} · เหลือ {product.stock}
           </span>
           <button
-            onClick={() => {
-              addToCart(product, 1);
-              toast.success(`เพิ่ม ${product.name} ลงตะกร้าแล้ว`);
+            onClick={async () => {
+              try {
+                await addToCart(product, 1);
+                toast.success(`เพิ่ม ${product.name} ลงตะกร้าแล้ว`);
+              } catch (error) {
+                toast.error(
+                  error instanceof Error
+                    ? error.message
+                    : "เพิ่มสินค้าไม่สำเร็จ",
+                );
+              }
             }}
             className="focus-ring grid size-9 place-items-center rounded-md bg-primary text-white hover:bg-primary-strong"
             aria-label={`เพิ่ม ${product.name} ลงตะกร้า`}

@@ -9,14 +9,15 @@ import { useCommerce } from "@/features/commerce/commerce-provider";
 import { formatMoney } from "@/lib/utils";
 
 export function CartContent() {
-  const { cart, updateQuantity, removeFromCart, hydrated } = useCommerce();
+  const { cart, updateQuantity, removeFromCart, hydrated, loading } =
+    useCommerce();
   const subtotal = cart.reduce(
     (sum, item) => sum + item.product.priceSatang * item.quantity,
     0,
   );
   const shipping = cart.length ? 4000 : 0;
 
-  if (!hydrated) {
+  if (!hydrated || loading) {
     return <div className="h-72 animate-pulse rounded-lg bg-surface-muted" />;
   }
 
@@ -61,9 +62,17 @@ export function CartContent() {
                   <p className="mt-1 text-xs text-muted">{item.product.size}</p>
                 </div>
                 <button
-                  onClick={() => {
-                    removeFromCart(item.id);
-                    toast.success("นำสินค้าออกจากตะกร้าแล้ว");
+                  onClick={async () => {
+                    try {
+                      await removeFromCart(item.id);
+                      toast.success("นำสินค้าออกจากตะกร้าแล้ว");
+                    } catch (error) {
+                      toast.error(
+                        error instanceof Error
+                          ? error.message
+                          : "ลบสินค้าไม่สำเร็จ",
+                      );
+                    }
                   }}
                   aria-label={`นำ ${item.product.name} ออกจากตะกร้า`}
                   className="self-start text-muted hover:text-danger"
@@ -74,11 +83,13 @@ export function CartContent() {
               <div className="mt-4 flex items-center justify-between">
                 <div className="flex items-center rounded-md border border-border">
                   <button
-                    onClick={() =>
-                      item.quantity === 1
-                        ? removeFromCart(item.id)
-                        : updateQuantity(item.id, item.quantity - 1)
-                    }
+                    onClick={async () => {
+                      if (item.quantity === 1) {
+                        await removeFromCart(item.id);
+                      } else {
+                        await updateQuantity(item.id, item.quantity - 1);
+                      }
+                    }}
                     className="grid size-8 place-items-center"
                     aria-label={`ลดจำนวน ${item.product.name}`}
                   >
@@ -89,7 +100,7 @@ export function CartContent() {
                   </span>
                   <button
                     onClick={() =>
-                      updateQuantity(item.id, item.quantity + 1)
+                      void updateQuantity(item.id, item.quantity + 1)
                     }
                     disabled={item.quantity >= item.product.stock}
                     className="grid size-8 place-items-center disabled:opacity-35"

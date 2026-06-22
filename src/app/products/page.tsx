@@ -3,7 +3,7 @@ import { StoreShell } from "@/components/layout/store-shell";
 import { PageHeading } from "@/components/layout/page-heading";
 import { ProductExplorer } from "@/features/catalog/product-explorer";
 import { getProducts } from "@/lib/api/catalog";
-import { mockProducts } from "@/lib/mock-data";
+import type { Product } from "@/lib/types";
 
 export const metadata: Metadata = { title: "สินค้าทั้งหมด" };
 
@@ -13,7 +13,7 @@ export default async function ProductsPage({
   searchParams: Promise<{ search?: string; category?: string }>;
 }) {
   const filters = await searchParams;
-  let products = mockProducts;
+  let products: Product[] = [];
   try {
     const response = await getProducts({
       search: filters.search,
@@ -23,7 +23,7 @@ export default async function ProductsPage({
     });
     products = response.items;
   } catch {
-    // Keep the storefront reviewable when the development API is unavailable.
+    // The explorer renders an empty state when the API is unavailable.
   }
   return (
     <StoreShell>
