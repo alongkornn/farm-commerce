@@ -124,6 +124,17 @@ jobs:
           cp deploy/scripts/*.sh package/scripts/
           chmod +x package/scripts/*.sh
           printf '%s\n' "$APP_ENV_FILE" > package/.env
+          if ! awk '
+            /^[[:space:]]*$/ || /^[[:space:]]*#/ { next }
+            /^[A-Za-z_][A-Za-z0-9_]*=.*/ { next }
+            {
+              printf "invalid APP_ENV_FILE format at line %d\n", NR > "/dev/stderr"
+              invalid = 1
+            }
+            END { exit invalid }
+          ' package/.env; then
+            exit 1
+          fi
           tar -C package -czf deployment.tar.gz .
       - name: Configure SSH
         shell: bash
