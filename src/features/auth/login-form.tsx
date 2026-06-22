@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/features/auth/auth-provider";
 import { login } from "@/lib/api/client";
+import { getSeller } from "@/lib/api/catalog";
 
 const schema = z.object({
   email: z.email("กรุณากรอกอีเมลให้ถูกต้อง"),
@@ -35,12 +36,16 @@ export function LoginForm() {
       const session = await login(values.email, values.password);
       setSession(session);
       toast.success("เข้าสู่ระบบสำเร็จ");
-      const destination =
-        session.user.userType === "seller"
-          ? "/seller"
-          : session.user.userType === "admin"
-            ? "/admin"
-            : "/account";
+      let destination =
+        session.user.userType === "admin" ? "/admin" : "/account";
+      if (session.user.userType === "seller") {
+        const seller = await getSeller(session.user.id).catch(() => null);
+        destination =
+          seller?.status === "approved" ? "/seller" : "/seller/settings";
+        if (seller && seller.status !== "approved") {
+          toast.info("ข้อมูลสวนอยู่ระหว่างรอผู้ดูแลอนุมัติ");
+        }
+      }
       router.push(destination);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "เข้าสู่ระบบไม่สำเร็จ");
