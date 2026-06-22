@@ -42,6 +42,15 @@ export type Product = {
   updatedAt: string;
 };
 
+export type ProductCategory = {
+  id: string;
+  name: string;
+  active: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type SellerProfile = {
   id: string;
   userId: string;
