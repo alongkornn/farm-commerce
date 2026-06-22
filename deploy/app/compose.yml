@@ -1,0 +1,25 @@
+services:
+  frontend:
+    image: ${IMAGE}
+    container_name: ${APP_CONTAINER_NAME}
+    restart: unless-stopped
+    environment:
+      HOSTNAME: "0.0.0.0"
+      PORT: "3000"
+    networks:
+      - proxy
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "5"
+
+networks:
+  proxy:
+    external: true
+    name: proxy

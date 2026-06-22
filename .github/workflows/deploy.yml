@@ -1,0 +1,173 @@
+name: deploy
+
+on:
+  push:
+    branches: [dev, stg, uat, prod]
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: frontend-deploy-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  target:
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.map.outputs.environment }}
+      image_tag: ${{ steps.map.outputs.image_tag }}
+    steps:
+      - id: map
+        shell: bash
+        run: |
+          case "${GITHUB_REF_NAME}" in
+            dev)
+              echo "environment=development" >> "$GITHUB_OUTPUT"
+              echo "image_tag=dev" >> "$GITHUB_OUTPUT"
+              ;;
+            stg)
+              echo "environment=staging" >> "$GITHUB_OUTPUT"
+              echo "image_tag=stg" >> "$GITHUB_OUTPUT"
+              ;;
+            uat)
+              echo "environment=uat" >> "$GITHUB_OUTPUT"
+              echo "image_tag=uat" >> "$GITHUB_OUTPUT"
+              ;;
+            prod)
+              echo "environment=production" >> "$GITHUB_OUTPUT"
+              echo "image_tag=prod" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8080/api/v1
+
+  build:
+    needs: [target, verify]
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ needs.target.outputs.environment }}
+    outputs:
+      image: ${{ steps.image.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - id: image
+        name: Define image tags
+        shell: bash
+        run: |
+          REPOSITORY=$(printf '%s' "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
+          echo "sha=ghcr.io/${REPOSITORY}:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+          echo "environment=ghcr.io/${REPOSITORY}:${{ needs.target.outputs.image_tag }}" >> "$GITHUB_OUTPUT"
+      - name: Verify build configuration
+        shell: bash
+        env:
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+        run: |
+          set -euo pipefail
+          test -n "$NEXT_PUBLIC_API_URL"
+          case "$NEXT_PUBLIC_API_URL" in
+            https://*/api/v1) ;;
+            *)
+              echo "NEXT_PUBLIC_API_URL must use HTTPS and end with /api/v1" >&2
+              exit 1
+              ;;
+          esac
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
+          tags: |
+            ${{ steps.image.outputs.sha }}
+            ${{ steps.image.outputs.environment }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: [target, build]
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ needs.target.outputs.environment }}
+      url: ${{ vars.APP_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare deployment package
+        shell: bash
+        env:
+          APP_ENV_FILE: ${{ secrets.APP_ENV_FILE }}
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p package/scripts
+          cp deploy/app/compose.yml package/compose.yml
+          cp deploy/scripts/*.sh package/scripts/
+          chmod +x package/scripts/*.sh
+          printf '%s\n' "$APP_ENV_FILE" > package/.env
+          tar -C package -czf deployment.tar.gz .
+      - name: Configure SSH
+        shell: bash
+        env:
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          SERVER_KNOWN_HOSTS: ${{ secrets.SERVER_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SERVER_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$SERVER_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+      - name: Upload deployment package
+        shell: bash
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/deploy_key "$SERVER_USER@$SERVER_HOST" "mkdir -p '$DEPLOY_PATH'"
+          scp -i ~/.ssh/deploy_key deployment.tar.gz "$SERVER_USER@$SERVER_HOST:$DEPLOY_PATH/deployment.tar.gz"
+          ssh -i ~/.ssh/deploy_key "$SERVER_USER@$SERVER_HOST" \
+            "cd '$DEPLOY_PATH' && tar -xzf deployment.tar.gz && rm deployment.tar.gz && chmod 600 .env && chmod +x scripts/*.sh"
+      - name: Log server in to GHCR
+        shell: bash
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$GHCR_TOKEN" | ssh -i ~/.ssh/deploy_key "$SERVER_USER@$SERVER_HOST" \
+            "docker login ghcr.io -u '$GHCR_USERNAME' --password-stdin"
+      - name: Deploy and verify
+        shell: bash
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          IMAGE: ${{ needs.build.outputs.image }}
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/deploy_key "$SERVER_USER@$SERVER_HOST" \
+            "'$DEPLOY_PATH/scripts/deploy.sh' '$IMAGE'"
