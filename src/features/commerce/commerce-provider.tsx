@@ -13,6 +13,7 @@ import type { ApiEnvelope, CartItem, Product } from "@/lib/types";
 
 type CommerceContextValue = {
   cart: CartItem[];
+  cartCount: number;
   favorites: string[];
   hydrated: boolean;
   loading: boolean;
@@ -32,6 +33,7 @@ export function CommerceProvider({ children }: { children: React.ReactNode }) {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const isBuyer = user?.userType === "buyer";
+  const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
 
   const reload = useCallback(async () => {
     if (!isBuyer) {
@@ -132,6 +134,7 @@ export function CommerceProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(
     () => ({
       cart,
+      cartCount,
       favorites,
       hydrated: authHydrated,
       loading,
@@ -146,6 +149,7 @@ export function CommerceProvider({ children }: { children: React.ReactNode }) {
       addToCart,
       authHydrated,
       cart,
+      cartCount,
       clearCart,
       favorites,
       loading,

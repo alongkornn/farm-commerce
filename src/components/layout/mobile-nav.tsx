@@ -11,11 +11,13 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/features/auth/auth-provider";
+import { useCommerce } from "@/features/commerce/commerce-provider";
 import { cn } from "@/lib/utils";
 
 export function MobileNav() {
   const pathname = usePathname();
   const { user } = useAuth();
+  const { cartCount } = useCommerce();
   const dashboardHref =
     user?.userType === "seller"
       ? "/seller"
@@ -57,7 +59,14 @@ export function MobileNav() {
                 active && "text-primary",
               )}
             >
-              <Icon size={20} strokeWidth={active ? 2.5 : 2} />
+              <span className="relative">
+                <Icon size={20} strokeWidth={active ? 2.5 : 2} />
+                {href === "/cart" && cartCount > 0 ? (
+                  <span className="absolute -right-3 -top-2 grid min-h-4 min-w-4 place-items-center rounded-full bg-danger px-1 text-[9px] font-extrabold leading-none text-white ring-2 ring-surface">
+                    {cartCount > 99 ? "99+" : cartCount}
+                  </span>
+                ) : null}
+              </span>
               <span className="max-w-full truncate px-1">{label}</span>
             </Link>
           );
