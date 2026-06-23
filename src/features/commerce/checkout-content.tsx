@@ -9,7 +9,12 @@ import { Input } from "@/components/ui/input";
 import { ResourceState } from "@/components/ui/resource-state";
 import { useAuth } from "@/features/auth/auth-provider";
 import { useCommerce } from "@/features/commerce/commerce-provider";
-import type { Address, ApiEnvelope, CheckoutResponse } from "@/lib/types";
+import type {
+  Address,
+  ApiEnvelope,
+  CheckoutResponse,
+  ShippingQuote,
+} from "@/lib/types";
 import { useApiResource } from "@/lib/use-api-resource";
 import { formatMoney } from "@/lib/utils";
 
@@ -18,6 +23,10 @@ export function CheckoutContent() {
   const { request } = useAuth();
   const { cart, reload } = useCommerce();
   const addresses = useApiResource<Address[]>("/addresses", []);
+  const shippingQuote = useApiResource<ShippingQuote>(
+    "/orders/shipping-quote",
+    { totalWeightKg: 0, shippingFeeSatang: 0, items: [] },
+  );
   const [addressId, setAddressId] = useState("");
   const [couponCode, setCouponCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -37,12 +46,12 @@ export function CheckoutContent() {
       const response = await request<ApiEnvelope<CheckoutResponse>>(
         "/orders/checkout",
         {
-        method: "POST",
-        body: JSON.stringify({
-          addressId: selectedAddress,
-          idempotencyKey: crypto.randomUUID(),
-          couponCode: couponCode.trim(),
-        }),
+          method: "POST",
+          body: JSON.stringify({
+            addressId: selectedAddress,
+            idempotencyKey: crypto.randomUUID(),
+            couponCode: couponCode.trim(),
+          }),
         },
       );
       await reload();
@@ -125,13 +134,39 @@ export function CheckoutContent() {
           <span className="text-muted">สินค้า</span>
           <strong>{formatMoney(subtotal)}</strong>
         </p>
+        <p className="mt-3 flex justify-between text-sm">
+          <span className="text-muted">
+            ค่าจัดส่ง ({shippingQuote.data.totalWeightKg.toFixed(3)} กก.)
+          </span>
+          <strong>{formatMoney(shippingQuote.data.shippingFeeSatang)}</strong>
+        </p>
+        <ResourceState
+          loading={shippingQuote.loading}
+          error={shippingQuote.error}
+          onRetry={shippingQuote.reload}
+        />
+        {!shippingQuote.loading && !shippingQuote.error ? (
+          <p className="mt-5 flex justify-between border-t border-border pt-5">
+            <span className="font-bold">ยอดรวม</span>
+            <strong className="font-display text-xl text-primary">
+              {formatMoney(subtotal + shippingQuote.data.shippingFeeSatang)}
+            </strong>
+          </p>
+        ) : null}
         <p className="mt-3 text-xs leading-5 text-muted">
-          ค่าจัดส่งและส่วนลดจะคำนวณโดย backend
+          ระบบคิดค่าจัดส่งแยกตามน้ำหนักสินค้ารวมของแต่ละสวน
+          ส่วนลดจะตรวจสอบอีกครั้งเมื่อยืนยัน
         </p>
         <Button
           size="lg"
           className="mt-5 w-full"
-          disabled={submitting || !cart.length || !selectedAddress}
+          disabled={
+            submitting ||
+            shippingQuote.loading ||
+            Boolean(shippingQuote.error) ||
+            !cart.length ||
+            !selectedAddress
+          }
           onClick={confirmOrder}
         >
           {submitting ? "กำลังสร้างคำสั่งซื้อ..." : "ยืนยันคำสั่งซื้อ"}

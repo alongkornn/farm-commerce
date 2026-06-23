@@ -14,6 +14,7 @@ import { useAuth } from "@/features/auth/auth-provider";
 import type {
   Product,
   ProductCategory,
+  ProductUnit,
   UploadResponse,
 } from "@/lib/types";
 import { useApiResource } from "@/lib/use-api-resource";
@@ -28,12 +29,15 @@ export default function SellerProductsPage() {
     true,
     false,
   );
+  const units = useApiResource<ProductUnit[]>("/product-units", [], true, false);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const editingCategoryAvailable =
     !editing ||
     categories.data.some((category) => category.name === editing.category);
+  const defaultUnit =
+    units.data.find((unit) => unit.code === "kg") ?? units.data[0];
 
   function edit(product?: Product) {
     setEditing(product ?? null);
@@ -47,7 +51,10 @@ export default function SellerProductsPage() {
       title="สินค้า"
       description="เพิ่ม แก้ไข เปิดปิด และลบสินค้าของสวน"
       actions={
-        <Button onClick={() => edit()}>
+        <Button
+          onClick={() => edit()}
+          disabled={units.loading || units.data.length === 0}
+        >
           <Plus size={18} />
           เพิ่มสินค้า
         </Button>
@@ -158,7 +165,8 @@ export default function SellerProductsPage() {
                     name: data.get("name"),
                     category: data.get("category"),
                     priceSatang: Math.round(Number(data.get("price")) * 100),
-                    size: data.get("size"),
+                    unitQuantity: Number(data.get("unitQuantity")),
+                    unitId: data.get("unitId"),
                     stock: Number(data.get("stock")),
                     imageUrls,
                     description: data.get("description"),
@@ -178,13 +186,44 @@ export default function SellerProductsPage() {
           {[
             ["sku", "SKU", editing?.sku ?? ""],
             ["name", "ชื่อสินค้า", editing?.name ?? ""],
-            ["size", "ขนาด", editing?.size ?? ""],
           ].map(([name, label, value]) => (
             <label key={name} className="grid gap-1.5 text-sm font-bold">
               {label}
               <Input name={name} defaultValue={value} required />
             </label>
           ))}
+          <div className="grid grid-cols-[1fr_1.2fr] gap-3">
+            <label className="grid gap-1.5 text-sm font-bold">
+              ปริมาณต่อหนึ่งรายการ
+              <Input
+                name="unitQuantity"
+                type="number"
+                min="0.001"
+                step="0.001"
+                defaultValue={editing?.unitQuantity ?? 1}
+                required
+              />
+            </label>
+            <label className="grid gap-1.5 text-sm font-bold">
+              หน่วย
+              <select
+                name="unitId"
+                defaultValue={editing?.unitId ?? defaultUnit?.id ?? ""}
+                disabled={units.loading || units.data.length === 0}
+                className="h-11 rounded-md border border-border bg-surface px-3 disabled:cursor-not-allowed disabled:opacity-60"
+                required
+              >
+                <option value="" disabled>
+                  {units.loading ? "กำลังโหลดหน่วย..." : "เลือกหน่วย"}
+                </option>
+                {units.data.map((unit) => (
+                  <option key={unit.id} value={unit.id}>
+                    {unit.name} ({unit.symbol})
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
           <label className="grid gap-1.5 text-sm font-bold">
             ประเภท
             <select
@@ -220,7 +259,7 @@ export default function SellerProductsPage() {
           </label>
           <div className="grid grid-cols-2 gap-3">
             <label className="grid gap-1.5 text-sm font-bold">
-              ราคา (บาท)
+              ราคาต่อหนึ่งรายการขาย (บาท)
               <Input
                 name="price"
                 type="number"
@@ -231,6 +270,10 @@ export default function SellerProductsPage() {
                 }
                 required
               />
+              <span className="text-xs font-medium text-muted">
+                ค่าเริ่มต้นคือราคาต่อ 1 กก. หากเปลี่ยนปริมาณหรือหน่วย
+                ราคานี้จะเป็นราคาต่อชุดนั้น
+              </span>
             </label>
             <label className="grid gap-1.5 text-sm font-bold">
               จำนวน

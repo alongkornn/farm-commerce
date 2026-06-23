@@ -36,12 +36,25 @@ export type Product = {
   category: string;
   priceSatang: number;
   size: string;
+  unitQuantity: number;
+  unitId: string;
+  unit: ProductUnit;
   stock: number;
   description: string;
   active: boolean;
   images: ProductImage[];
   createdAt: string;
   updatedAt: string;
+};
+
+export type ProductUnit = {
+  id: string;
+  code: string;
+  name: string;
+  symbol: string;
+  kgMultiplier: number;
+  active: boolean;
+  sortOrder: number;
 };
 
 export type ProductCategory = {
@@ -108,6 +121,7 @@ export type Order = {
   status: string;
   totalSatang: number;
   shippingFeeSatang: number;
+  totalWeightKg: number;
   recipientName: string;
   recipientPhone: string;
   shippingAddress: string;
@@ -168,10 +182,20 @@ export type UserPage = {
 export type ShippingRate = {
   id: string;
   name: string;
-  minKm: number;
-  maxKm: number;
+  minWeightKg: number;
+  maxWeightKg: number;
   feeSatang: number;
   active: boolean;
+};
+
+export type ShippingQuote = {
+  totalWeightKg: number;
+  shippingFeeSatang: number;
+  items: {
+    sellerId: string;
+    weightKg: number;
+    shippingFeeSatang: number;
+  }[];
 };
 
 export type Notification = {

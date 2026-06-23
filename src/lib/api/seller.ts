@@ -39,7 +39,8 @@ export async function createProduct(
     name: string;
     category: string;
     priceSatang: number;
-    size: string;
+    unitQuantity: number;
+    unitId: string;
     stock: number;
     imageUrls: string[];
     description: string;
@@ -60,7 +61,8 @@ export async function updateProduct(
     name: string;
     category: string;
     priceSatang: number;
-    size: string;
+    unitQuantity: number;
+    unitId: string;
     stock: number;
     imageUrls: string[];
     description: string;
