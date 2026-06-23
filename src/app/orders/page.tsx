@@ -73,7 +73,9 @@ export default function OrdersPage() {
                     {order.items?.length ?? 0} รายการ
                   </p>
                   <p className="font-display text-xl font-extrabold text-primary">
-                    {formatMoney(order.totalSatang)}
+                    {formatMoney(
+                      order.totalSatang + order.shippingFeeSatang,
+                    )}
                   </p>
                 </div>
               </Link>

@@ -90,9 +90,19 @@ export default function OrderDetailPage() {
               </div>
               <div className="rounded-lg border border-border bg-surface p-5">
                 <p className="flex justify-between text-sm">
+                  <span className="text-muted">ราคาสินค้า</span>
+                  <strong>{formatMoney(order.totalSatang)}</strong>
+                </p>
+                <p className="mt-3 flex justify-between text-sm">
+                  <span className="text-muted">ค่าจัดส่ง</span>
+                  <strong>{formatMoney(order.shippingFeeSatang)}</strong>
+                </p>
+                <p className="mt-4 flex justify-between border-t border-border pt-4 text-sm">
                   <span className="text-muted">ยอดรวม</span>
                   <strong className="text-primary">
-                    {formatMoney(order.totalSatang)}
+                    {formatMoney(
+                      order.totalSatang + order.shippingFeeSatang,
+                    )}
                   </strong>
                 </p>
                 <RefundButton orderId={order.id} />

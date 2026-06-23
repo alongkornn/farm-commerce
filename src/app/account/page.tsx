@@ -23,6 +23,8 @@ export default function AccountPage() {
     userType: "buyer",
     verified: false,
     status: "",
+    deleted: false,
+    createdAt: "",
   });
 
   return (
