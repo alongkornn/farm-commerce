@@ -21,6 +21,8 @@ const emptyAddress: Omit<Address, "id"> = {
   district: "",
   province: "",
   postalCode: "",
+  latitude: 0,
+  longitude: 0,
   isDefault: false,
 };
 
@@ -45,6 +47,8 @@ export function AddressManager() {
             district: address.district,
             province: address.province,
             postalCode: address.postalCode,
+            latitude: address.latitude,
+            longitude: address.longitude,
             isDefault: address.isDefault,
           }
         : emptyAddress,
@@ -170,6 +174,32 @@ export function AddressManager() {
               />
             </label>
           ))}
+          <div className="grid grid-cols-2 gap-3">
+            <label className="grid gap-1.5 text-sm font-bold">
+              ละติจูด
+              <Input
+                type="number"
+                step="any"
+                value={draft.latitude || ""}
+                onChange={(event) =>
+                  setDraft((value) => ({ ...value, latitude: Number(event.target.value) }))
+                }
+                required
+              />
+            </label>
+            <label className="grid gap-1.5 text-sm font-bold">
+              ลองจิจูด
+              <Input
+                type="number"
+                step="any"
+                value={draft.longitude || ""}
+                onChange={(event) =>
+                  setDraft((value) => ({ ...value, longitude: Number(event.target.value) }))
+                }
+                required
+              />
+            </label>
+          </div>
           <label className="flex items-center gap-2 text-sm font-bold">
             <input
               type="checkbox"

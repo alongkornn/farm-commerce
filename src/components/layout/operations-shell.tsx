@@ -10,6 +10,7 @@ import {
   Package,
   RefreshCcw,
   Settings,
+  Truck,
   ShoppingBag,
   Store,
   Tags,
@@ -39,6 +40,7 @@ const adminLinks = [
   { href: "/admin/refunds", label: "คืนเงิน", icon: RefreshCcw },
   { href: "/admin/coupons", label: "คูปอง", icon: TicketPercent },
   { href: "/admin/payouts", label: "รอบจ่ายเงิน", icon: BadgeDollarSign },
+  { href: "/admin/shipping", label: "ค่าจัดส่ง", icon: Truck },
   { href: "/admin/users", label: "ผู้ใช้งาน", icon: UsersRound },
 ];
 

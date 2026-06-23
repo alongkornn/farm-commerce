@@ -48,7 +48,9 @@ export default function SellerOrdersPage() {
                   <Cell>{order.recipientName}</Cell>
                   <Cell>{formatDateTime(order.createdAt)}</Cell>
                   <Cell className="font-bold">
-                    {formatMoney(order.totalSatang)}
+                    {formatMoney(
+                      order.totalSatang + order.shippingFeeSatang,
+                    )}
                   </Cell>
                   <Cell>
                     <StatusBadge status={order.status} />

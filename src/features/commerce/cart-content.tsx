@@ -20,7 +20,6 @@ export function CartContent() {
     (sum, item) => sum + item.product.priceSatang * item.quantity,
     0,
   );
-  const shipping = cart.length ? 4000 : 0;
 
   if (!hydrated) {
     return <div className="h-72 animate-pulse rounded-lg bg-surface-muted" />;
@@ -156,14 +155,16 @@ export function CartContent() {
             <strong>{formatMoney(subtotal)}</strong>
           </p>
           <p className="flex justify-between">
-            <span className="text-muted">ค่าจัดส่งโดยประมาณ</span>
-            <strong>{formatMoney(shipping)}</strong>
+            <span className="text-muted">ค่าจัดส่ง</span>
+            <strong className="text-right text-xs">
+              คำนวณตามระยะทางตอนชำระเงิน
+            </strong>
           </p>
         </div>
         <div className="mt-5 flex justify-between border-t border-border pt-5">
           <span className="font-bold">ยอดรวม</span>
           <strong className="font-display text-xl text-primary">
-            {formatMoney(subtotal + shipping)}
+            {formatMoney(subtotal)}
           </strong>
         </div>
         <Link href="/checkout" className="mt-5 block">

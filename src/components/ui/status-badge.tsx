@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 
 const labels: Record<string, string> = {
+  active: "ใช้งานอยู่",
   pending: "รอตรวจสอบ",
   processing: "กำลังเตรียม",
   confirmed: "ยืนยันแล้ว",

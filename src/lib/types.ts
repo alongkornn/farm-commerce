@@ -9,6 +9,8 @@ export type User = {
   userType: UserRole;
   verified: boolean;
   status: string;
+  deleted: boolean;
+  createdAt: string;
 };
 
 export type AuthResponse = {
@@ -57,6 +59,8 @@ export type SellerProfile = {
   farmName: string;
   description: string;
   address: string;
+  latitude: number;
+  longitude: number;
   status: "pending" | "approved" | "rejected" | "suspended";
   deleted: boolean;
   reviewNote?: string;
@@ -146,7 +150,28 @@ export type Address = {
   district: string;
   province: string;
   postalCode: string;
+  latitude: number;
+  longitude: number;
   isDefault: boolean;
+};
+
+export type UserPage = {
+  items: User[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+};
+
+export type ShippingRate = {
+  id: string;
+  name: string;
+  minKm: number;
+  maxKm: number;
+  feeSatang: number;
+  active: boolean;
 };
 
 export type Notification = {
