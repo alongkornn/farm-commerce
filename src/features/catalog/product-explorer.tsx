@@ -94,7 +94,7 @@ export function ProductExplorer({
         </div>
       </div>
 
-      <div className="mt-5 flex items-center justify-between gap-3">
+      <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
         <p className="text-sm text-muted">
           พบ <strong className="text-foreground">{filtered.length}</strong>{" "}
           รายการ
@@ -105,7 +105,7 @@ export function ProductExplorer({
               setSearch("");
               setCategory("");
             }}
-            className="focus-ring flex items-center gap-1 rounded-md px-2 py-1 text-xs font-bold text-danger hover:bg-[#f6ded8]"
+            className="focus-ring flex w-fit items-center gap-1 rounded-md px-2 py-1 text-xs font-bold text-danger hover:bg-[#f6ded8]"
           >
             <X size={14} />
             ล้างตัวกรอง

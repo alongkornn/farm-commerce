@@ -87,7 +87,7 @@ export default function AdminUsersPage() {
         <ResourceState {...resource} onRetry={resource.reload} />
         {!resource.loading && !resource.error ? (
           resource.data.items.length ? (
-            <DataTable headers={["ผู้ใช้งาน", "ประเภท", "สถานะ", "สมัครเมื่อ", ""]}>
+            <DataTable headers={["ผู้ใช้งาน", "ประเภท", "สถานะ", "สมัครเมื่อ", ""]} minWidth="min-w-[640px]">
               {resource.data.items.map((user) => (
                 <tr key={user.id}>
                   <Cell>
@@ -101,6 +101,7 @@ export default function AdminUsersPage() {
                     <Button
                       size="sm"
                       variant="outline"
+                      className="w-full sm:w-auto"
                       disabled={user.id === currentUser?.id}
                       onClick={() =>
                         void changeStatus(

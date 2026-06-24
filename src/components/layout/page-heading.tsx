@@ -11,12 +11,12 @@ export function PageHeading({
 }) {
   return (
     <section className="border-b border-border bg-surface">
-      <div className="container-page flex flex-col gap-5 py-8 sm:flex-row sm:items-end sm:justify-between sm:py-10">
+      <div className="container-page flex flex-col gap-5 py-7 sm:flex-row sm:items-end sm:justify-between sm:py-10">
         <div>
           {eyebrow ? (
             <p className="text-sm font-bold text-primary">{eyebrow}</p>
           ) : null}
-          <h1 className="mt-1 text-3xl font-extrabold leading-tight sm:text-4xl">
+          <h1 className="mt-1 text-2xl font-extrabold leading-tight sm:text-4xl">
             {title}
           </h1>
           {description ? (
@@ -25,7 +25,7 @@ export function PageHeading({
             </p>
           ) : null}
         </div>
-        {actions ? <div className="shrink-0">{actions}</div> : null}
+        {actions ? <div className="flex w-full flex-col gap-2 sm:w-auto sm:shrink-0 sm:flex-row sm:items-center">{actions}</div> : null}
       </div>
     </section>
   );

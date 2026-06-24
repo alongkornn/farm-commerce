@@ -20,7 +20,7 @@ export function ProductPurchaseControls({ product }: { product: Product }) {
   return (
     <>
       <div className="mt-6 border-y border-border py-5">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <span className="text-sm font-bold">จำนวน</span>
           <div className="flex items-center rounded-md border border-border">
             <button
@@ -52,7 +52,7 @@ export function ProductPurchaseControls({ product }: { product: Product }) {
       <div className="mt-6 flex gap-3">
         <Button
           size="lg"
-          className="flex-1"
+          className="min-w-0 flex-1"
           onClick={async () => {
             try {
               await addToCart(product, quantity);
@@ -70,7 +70,7 @@ export function ProductPurchaseControls({ product }: { product: Product }) {
         <Button
           size="lg"
           variant="outline"
-          className={cn(favorite && "border-danger text-danger")}
+          className={cn("shrink-0", favorite && "border-danger text-danger")}
           aria-label={
             favorite ? "นำออกจากรายการโปรด" : "เพิ่มเป็นรายการโปรด"
           }

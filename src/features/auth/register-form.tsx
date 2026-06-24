@@ -75,7 +75,7 @@ export function RegisterForm({
         เลือกประเภทบัญชีให้ตรงกับการใช้งานของคุณ
       </p>
 
-      <div className="mt-6 grid grid-cols-2 gap-2 rounded-lg bg-surface-muted p-1">
+      <div className="mt-6 grid gap-2 rounded-lg bg-surface-muted p-1 sm:grid-cols-2">
         <RoleButton
           active={role === "buyer"}
           icon={UserRound}
@@ -91,7 +91,7 @@ export function RegisterForm({
       </div>
 
       <form onSubmit={onSubmit} className="mt-6 grid gap-4">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid gap-3 sm:grid-cols-2">
           <Field label="ชื่อ" error={errors.firstName?.message}>
             <Input autoComplete="given-name" {...register("firstName")} />
           </Field>
@@ -105,7 +105,7 @@ export function RegisterForm({
         <Field label="อีเมล" error={errors.email?.message}>
           <Input type="email" autoComplete="email" {...register("email")} />
         </Field>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid gap-3 sm:grid-cols-2">
           <Field label="รหัสผ่าน" error={errors.password?.message}>
             <Input
               type="password"
@@ -121,7 +121,7 @@ export function RegisterForm({
             />
           </Field>
         </div>
-        <Button type="submit" size="lg" className="mt-2" disabled={isSubmitting}>
+        <Button type="submit" size="lg" className="mt-2 w-full" disabled={isSubmitting}>
           {isSubmitting ? <LoaderCircle className="animate-spin" size={19} /> : null}
           {role === "seller" ? "สมัครเป็นเจ้าของสวน" : "สมัครสมาชิก"}
         </Button>

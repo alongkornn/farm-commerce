@@ -36,9 +36,9 @@ export default function BookingsPage() {
       description="ตรวจสอบสถานะคำขอ วันที่เข้าเยี่ยมชม และรหัสเช็กอิน"
     >
       <AuthGuard roles={["buyer"]}>
-        <div className="mb-5 flex justify-end">
-          <Link href="/visits">
-            <Button>
+        <div className="mb-5 flex justify-stretch sm:justify-end">
+          <Link href="/visits" className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto">
               <CalendarDays size={17} />
               จองเที่ยวสวนเพิ่ม
             </Button>
@@ -68,7 +68,7 @@ export default function BookingsPage() {
                 key={booking.id}
                 className="rounded-lg border border-border bg-surface p-5"
               >
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <h2 className="text-lg font-extrabold">
                       การจอง{" "}
@@ -98,7 +98,7 @@ export default function BookingsPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="mt-4"
+                    className="mt-4 w-full sm:w-auto"
                     onClick={async () => {
                       try {
                         await request(`/bookings/${booking.id}`, {

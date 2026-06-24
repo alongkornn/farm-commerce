@@ -57,16 +57,16 @@ export default async function Home() {
             </p>
             <form
               action="/products"
-              className="mt-8 flex max-w-xl items-center gap-2 rounded-lg bg-white p-2 shadow-xl"
+              className="mt-8 flex max-w-xl flex-col gap-2 rounded-lg bg-white p-2 shadow-xl sm:flex-row sm:items-center"
             >
-              <Search size={20} className="ml-2 shrink-0 text-muted" />
+              <Search size={20} className="ml-2 hidden shrink-0 text-muted sm:block" />
               <input
                 name="search"
                 aria-label="ค้นหาผลไม้หรือสวน"
                 placeholder="ค้นหาผลไม้หรือชื่อสวน"
                 className="h-11 min-w-0 flex-1 bg-transparent px-1 text-sm text-foreground outline-none"
               />
-              <Button type="submit">ค้นหา</Button>
+              <Button type="submit" className="w-full sm:w-auto">ค้นหา</Button>
             </form>
             <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-white/80">
               <span className="flex items-center gap-1.5">
@@ -167,7 +167,7 @@ export default async function Home() {
               <Link
                 key={slot.id}
                 href={`/visits?sellerId=${slot.sellerId}`}
-                className="flex items-center gap-4 p-4 hover:bg-surface-muted"
+                className="flex items-center gap-3 p-4 hover:bg-surface-muted sm:gap-4"
               >
                 <span className="grid size-11 shrink-0 place-items-center rounded-md bg-accent-soft font-display text-sm font-extrabold text-[#725214]">
                   {index + 1}

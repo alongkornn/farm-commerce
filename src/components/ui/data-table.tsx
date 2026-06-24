@@ -1,13 +1,17 @@
+import { cn } from "@/lib/utils";
+
 export function DataTable({
   headers,
   children,
+  minWidth = "min-w-[680px]",
 }: {
   headers: string[];
   children: React.ReactNode;
+  minWidth?: string;
 }) {
   return (
     <div className="overflow-x-auto rounded-lg border border-border bg-surface">
-      <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+      <table className={cn("w-full border-collapse text-left text-sm", minWidth)}>
         <thead className="border-b border-border bg-surface-muted text-xs text-muted">
           <tr>
             {headers.map((header) => (
@@ -30,5 +34,5 @@ export function Cell({
   children: React.ReactNode;
   className?: string;
 }) {
-  return <td className={`px-4 py-3.5 ${className}`}>{children}</td>;
+  return <td className={cn("px-3 py-3 align-top sm:px-4 sm:py-3.5", className)}>{children}</td>;
 }

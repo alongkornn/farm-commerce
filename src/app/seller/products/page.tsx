@@ -66,6 +66,7 @@ export default function SellerProductsPage() {
           resource.data.length ? (
             <DataTable
               headers={["สินค้า", "SKU", "ราคา", "คงเหลือ", "สถานะ", ""]}
+              minWidth="min-w-[620px]"
             >
               {resource.data.map((product) => (
                 <tr key={product.id}>
@@ -192,7 +193,7 @@ export default function SellerProductsPage() {
               <Input name={name} defaultValue={value} required />
             </label>
           ))}
-          <div className="grid grid-cols-[1fr_1.2fr] gap-3">
+          <div className="grid gap-3 sm:grid-cols-[1fr_1.2fr]">
             <label className="grid gap-1.5 text-sm font-bold">
               ปริมาณต่อหนึ่งรายการ
               <Input
@@ -257,7 +258,7 @@ export default function SellerProductsPage() {
               </span>
             ) : null}
           </label>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <label className="grid gap-1.5 text-sm font-bold">
               ราคาต่อหนึ่งรายการขาย (บาท)
               <Input
@@ -335,6 +336,7 @@ export default function SellerProductsPage() {
           </label>
           <Button
             type="submit"
+            className="w-full sm:w-auto"
             disabled={categories.loading || categories.data.length === 0}
           >
             บันทึกสินค้า

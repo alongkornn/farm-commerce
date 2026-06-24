@@ -78,6 +78,12 @@ a {
   width: min(100% - 32px, 1180px);
 }
 
+@media (max-width: 640px) {
+  .container-page {
+    width: min(100% - 20px, 1180px);
+  }
+}
+
 .focus-ring {
   outline: none;
 }

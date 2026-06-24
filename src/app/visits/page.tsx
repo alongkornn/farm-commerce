@@ -110,7 +110,7 @@ function FarmSlots({
                 key={slot.id}
                 className="rounded-lg border border-border bg-surface p-5"
               >
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-3 sm:gap-4">
                   <span className="grid size-12 shrink-0 place-items-center rounded-md bg-accent-soft text-[#725214]">
                     <CalendarDays size={23} />
                   </span>
@@ -124,7 +124,7 @@ function FarmSlots({
                     </p>
                   </div>
                 </div>
-                <div className="mt-5 grid grid-cols-2 gap-3 border-y border-border py-4 text-sm">
+                <div className="mt-5 grid gap-3 border-y border-border py-4 text-sm sm:grid-cols-2">
                   <span className="flex items-center gap-2">
                     <Clock3 size={17} className="text-primary" />
                     {formatDateTime(slot.startAt)}
@@ -134,7 +134,7 @@ function FarmSlots({
                     รับสูงสุด {slot.capacity} คน
                   </span>
                 </div>
-                <div className="mt-4 flex items-center justify-between">
+                <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <span className="text-xs font-bold text-primary">
                     เปิดรับจอง
                   </span>
