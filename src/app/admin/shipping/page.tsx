@@ -133,6 +133,7 @@ export default function AdminShippingPage() {
               units.data.length ? (
                 <DataTable
                   headers={["หน่วย", "สัญลักษณ์", "เท่ากับกิโลกรัม", "สถานะ", ""]}
+                  minWidth="min-w-[620px]"
                 >
                   {units.data.map((unit) => (
                     <tr key={unit.id}>
@@ -175,7 +176,7 @@ export default function AdminShippingPage() {
             <ResourceState {...rates} onRetry={reloadAll} />
             {!rates.loading && !rates.error ? (
               rates.data.length ? (
-                <DataTable headers={["ชื่อ", "น้ำหนัก", "ค่าจัดส่ง", "สถานะ", ""]}>
+                <DataTable headers={["ชื่อ", "น้ำหนัก", "ค่าจัดส่ง", "สถานะ", ""]} minWidth="min-w-[620px]">
                   {rates.data.map((rate) => (
                     <tr key={rate.id}>
                       <Cell className="font-bold">{rate.name}</Cell>
@@ -267,7 +268,7 @@ function UnitForm({
         รหัสหน่วย
         <Input name="code" defaultValue={unit?.code} placeholder="เช่น kg, g, ml" required />
       </label>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <label className="grid gap-1.5 text-sm font-bold">
           ชื่อหน่วย
           <Input name="name" defaultValue={unit?.name} placeholder="กิโลกรัม" required />
@@ -295,7 +296,7 @@ function UnitForm({
         ลำดับ
         <Input name="sortOrder" type="number" min="0" defaultValue={unit?.sortOrder ?? 0} />
       </label>
-      <Button type="submit">บันทึก</Button>
+      <Button type="submit" className="w-full sm:w-auto">บันทึก</Button>
     </form>
   );
 }
@@ -326,7 +327,7 @@ function RateForm({
         ชื่อ
         <Input name="name" defaultValue={rate?.name} required />
       </label>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <label className="grid gap-1.5 text-sm font-bold">
           ตั้งแต่ (กก.)
           <Input
@@ -361,7 +362,7 @@ function RateForm({
           required
         />
       </label>
-      <Button type="submit">บันทึก</Button>
+      <Button type="submit" className="w-full sm:w-auto">บันทึก</Button>
     </form>
   );
 }
@@ -376,7 +377,7 @@ function SectionHeader({
   action: React.ReactNode;
 }) {
   return (
-    <header className="mb-4 flex flex-wrap items-end justify-between gap-3">
+    <header className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
       <div>
         <h2 className="flex items-center gap-2 text-lg font-extrabold">
           <Scale size={19} className="text-primary" />

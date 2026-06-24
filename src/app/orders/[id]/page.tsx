@@ -38,11 +38,11 @@ export default function OrderDetailPage() {
           <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
             <div className="grid gap-6">
               <section className="rounded-lg border border-border bg-surface p-5">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                   <h2 className="text-lg font-extrabold">สถานะ</h2>
                   <StatusBadge status={order.status} />
                 </div>
-                <div className="mt-5 grid grid-cols-3 gap-2 text-center text-xs font-bold text-muted">
+                <div className="mt-5 grid gap-2 text-center text-xs font-bold text-muted sm:grid-cols-3">
                   <div className="text-primary">
                     <PackageCheck className="mx-auto mb-2" size={23} />
                     รับคำสั่งซื้อ
@@ -62,7 +62,7 @@ export default function OrderDetailPage() {
                 {(order.items ?? []).map((item) => (
                   <div
                     key={item.id}
-                    className="mt-4 flex justify-between gap-4 border-t border-border pt-4 text-sm"
+                    className="mt-4 flex items-start justify-between gap-4 border-t border-border pt-4 text-sm"
                   >
                     <div>
                       <p className="font-bold">{item.productName}</p>
@@ -70,7 +70,7 @@ export default function OrderDetailPage() {
                         {item.quantity} × {formatMoney(item.unitPriceSatang)}
                       </p>
                     </div>
-                    <strong>{formatMoney(item.subtotalSatang)}</strong>
+                    <strong className="shrink-0 text-right">{formatMoney(item.subtotalSatang)}</strong>
                   </div>
                 ))}
               </section>
@@ -89,17 +89,17 @@ export default function OrderDetailPage() {
                 </p>
               </div>
               <div className="rounded-lg border border-border bg-surface p-5">
-                <p className="flex justify-between text-sm">
+                <p className="flex items-start justify-between gap-4 text-sm">
                   <span className="text-muted">ราคาสินค้า</span>
                   <strong>{formatMoney(order.totalSatang)}</strong>
                 </p>
-                <p className="mt-3 flex justify-between text-sm">
+                <p className="mt-3 flex items-start justify-between gap-4 text-sm">
                   <span className="text-muted">
                     ค่าจัดส่ง ({(order.totalWeightKg ?? 0).toFixed(3)} กก.)
                   </span>
                   <strong>{formatMoney(order.shippingFeeSatang)}</strong>
                 </p>
-                <p className="mt-4 flex justify-between border-t border-border pt-4 text-sm">
+                <p className="mt-4 flex items-start justify-between gap-4 border-t border-border pt-4 text-sm">
                   <span className="text-muted">ยอดรวม</span>
                   <strong className="text-primary">
                     {formatMoney(

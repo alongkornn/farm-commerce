@@ -37,7 +37,7 @@ export default function SellerClosuresPage() {
             {resource.data.map((closure) => (
               <div
                 key={closure.id}
-                className="flex items-center justify-between gap-4 p-5"
+                className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
                   <p className="font-bold">{closure.reason || "ปิดสวน"}</p>
@@ -60,7 +60,7 @@ export default function SellerClosuresPage() {
                     }
                   }}
                   aria-label="ลบวันปิดสวน"
-                  className="text-muted hover:text-danger"
+                  className="self-end text-muted hover:text-danger sm:self-auto"
                 >
                   <Trash2 size={18} />
                 </button>
@@ -116,7 +116,7 @@ export default function SellerClosuresPage() {
             วันที่สิ้นสุด
             <Input name="endDate" type="datetime-local" required />
           </label>
-          <Button type="submit">บันทึกวันปิดสวน</Button>
+          <Button type="submit" className="w-full sm:w-auto">บันทึกวันปิดสวน</Button>
         </form>
       </Dialog>
     </OperationsShell>

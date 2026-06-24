@@ -41,7 +41,7 @@ export function AccountShell({
 
   return (
     <StoreShell>
-      <div className="container-page grid gap-8 py-8 lg:grid-cols-[220px_1fr]">
+      <div className="container-page grid gap-5 py-5 sm:py-8 lg:grid-cols-[220px_1fr] lg:gap-8">
         <aside>
           <nav className="scrollbar-none flex gap-1 overflow-x-auto lg:sticky lg:top-24 lg:grid">
             {links.map(({ href, label, icon: Icon }) => {
@@ -65,7 +65,7 @@ export function AccountShell({
         </aside>
         <section className="min-w-0">
           <div className="mb-6">
-            <h1 className="text-3xl font-extrabold">{title}</h1>
+            <h1 className="text-2xl font-extrabold leading-tight sm:text-3xl">{title}</h1>
             {description ? (
               <p className="mt-2 text-sm leading-6 text-muted">{description}</p>
             ) : null}

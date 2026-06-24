@@ -17,7 +17,7 @@ export function Button({
     <button
       type={type}
       className={cn(
-        "focus-ring inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md font-semibold transition disabled:pointer-events-none disabled:opacity-50",
+        "focus-ring inline-flex min-w-0 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md font-semibold transition disabled:pointer-events-none disabled:opacity-50",
         {
           "bg-primary text-white hover:bg-primary-strong": variant === "primary",
           "bg-accent text-[#332400] hover:bg-[#d99a17]":

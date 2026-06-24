@@ -130,15 +130,15 @@ export function CheckoutContent() {
       </div>
       <aside className="h-fit rounded-lg border border-border bg-surface p-5">
         <h2 className="text-lg font-extrabold">ยอดชำระโดยประมาณ</h2>
-        <p className="mt-5 flex justify-between text-sm">
+        <p className="mt-5 flex items-start justify-between gap-4 text-sm">
           <span className="text-muted">สินค้า</span>
           <strong>{formatMoney(subtotal)}</strong>
         </p>
-        <p className="mt-3 flex justify-between text-sm">
+        <p className="mt-3 flex items-start justify-between gap-4 text-sm">
           <span className="text-muted">
             ค่าจัดส่ง ({shippingQuote.data.totalWeightKg.toFixed(3)} กก.)
           </span>
-          <strong>{formatMoney(shippingQuote.data.shippingFeeSatang)}</strong>
+          <strong className="text-right">{formatMoney(shippingQuote.data.shippingFeeSatang)}</strong>
         </p>
         <ResourceState
           loading={shippingQuote.loading}
@@ -146,9 +146,9 @@ export function CheckoutContent() {
           onRetry={shippingQuote.reload}
         />
         {!shippingQuote.loading && !shippingQuote.error ? (
-          <p className="mt-5 flex justify-between border-t border-border pt-5">
+          <p className="mt-5 flex items-start justify-between gap-4 border-t border-border pt-5">
             <span className="font-bold">ยอดรวม</span>
-            <strong className="font-display text-xl text-primary">
+            <strong className="font-display text-right text-xl text-primary">
               {formatMoney(subtotal + shippingQuote.data.shippingFeeSatang)}
             </strong>
           </p>

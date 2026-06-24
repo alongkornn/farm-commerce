@@ -63,7 +63,7 @@ export function OperationsShell({
   return (
     <div className="min-h-screen bg-[#f4f6f1]">
       <SiteHeader />
-      <div className="container-page grid grid-cols-[minmax(0,1fr)] gap-6 py-6 lg:grid-cols-[210px_minmax(0,1fr)]">
+      <div className="container-page grid grid-cols-[minmax(0,1fr)] gap-5 py-5 sm:py-6 lg:grid-cols-[210px_minmax(0,1fr)] lg:gap-6">
         <aside>
           <div className="mb-3 hidden px-3 text-xs font-extrabold uppercase text-muted lg:block">
             {mode === "seller" ? "จัดการสวน" : "ผู้ดูแลระบบ"}
@@ -96,7 +96,7 @@ export function OperationsShell({
                 <p className="mt-1.5 text-sm leading-6 text-muted">{description}</p>
               ) : null}
             </div>
-            {actions ? <div className="shrink-0">{actions}</div> : null}
+            {actions ? <div className="flex w-full flex-col gap-2 sm:w-auto sm:shrink-0 sm:flex-row sm:items-center">{actions}</div> : null}
           </header>
           {children}
         </main>

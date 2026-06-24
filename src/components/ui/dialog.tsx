@@ -29,7 +29,7 @@ export function Dialog({
 
   return (
     <div
-      className="fixed inset-0 z-[80] grid place-items-center bg-foreground/45 p-4"
+      className="fixed inset-0 z-[80] grid place-items-end bg-foreground/45 p-0 sm:place-items-center sm:p-4"
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
@@ -39,9 +39,9 @@ export function Dialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="dialog-title"
-        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-surface shadow-[var(--shadow)]"
+        className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-lg bg-surface shadow-[var(--shadow)] sm:max-h-[90vh] sm:rounded-lg"
       >
-        <header className="flex items-start justify-between gap-4 border-b border-border p-5">
+        <header className="flex items-start justify-between gap-4 border-b border-border p-4 sm:p-5">
           <div>
             <h2 id="dialog-title" className="text-lg font-extrabold">
               {title}
@@ -58,7 +58,7 @@ export function Dialog({
             <X size={19} />
           </button>
         </header>
-        <div className="p-5">{children}</div>
+        <div className="p-4 sm:p-5">{children}</div>
       </section>
     </div>
   );

@@ -48,7 +48,7 @@ export function CartContent() {
         {cart.map((item, index) => (
           <div
             key={item.id}
-            className={`flex gap-4 p-4 transition-opacity ${
+            className={`grid gap-4 p-4 transition-opacity sm:grid-cols-[80px_1fr] ${
               pendingCartItemIds.includes(item.id) ? "opacity-70" : ""
             }`}
           >
@@ -60,7 +60,7 @@ export function CartContent() {
               <ImageIcon size={25} className="text-foreground/40" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="flex justify-between gap-3">
+              <div className="flex items-start justify-between gap-3">
                 <div>
                   <Link
                     href={`/products/${item.product.id}`}
@@ -90,7 +90,7 @@ export function CartContent() {
                   <Trash2 size={18} />
                 </button>
               </div>
-              <div className="mt-4 flex items-center justify-between">
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center rounded-md border border-border">
                   <button
                     onClick={async () => {
@@ -139,7 +139,7 @@ export function CartContent() {
                     <Plus size={14} />
                   </button>
                 </div>
-                <p className="font-display font-extrabold text-primary">
+                <p className="font-display font-extrabold text-primary sm:text-right">
                   {formatMoney(item.product.priceSatang * item.quantity)}
                 </p>
               </div>
@@ -157,11 +157,11 @@ export function CartContent() {
           <p className="flex justify-between">
             <span className="text-muted">ค่าจัดส่ง</span>
             <strong className="text-right text-xs">
-              คำนวณตามระยะทางตอนชำระเงิน
+              คำนวณตามน้ำหนักตอนชำระเงิน
             </strong>
           </p>
         </div>
-        <div className="mt-5 flex justify-between border-t border-border pt-5">
+        <div className="mt-5 flex items-start justify-between gap-4 border-t border-border pt-5">
           <span className="font-bold">ยอดรวม</span>
           <strong className="font-display text-xl text-primary">
             {formatMoney(subtotal)}

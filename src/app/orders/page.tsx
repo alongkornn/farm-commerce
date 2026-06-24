@@ -68,11 +68,11 @@ export default function OrdersPage() {
                   </div>
                   <StatusBadge status={order.status} />
                 </div>
-                <div className="mt-5 flex items-end justify-between border-t border-border pt-4">
+                <div className="mt-5 flex flex-col gap-2 border-t border-border pt-4 sm:flex-row sm:items-end sm:justify-between">
                   <p className="text-sm text-muted">
                     {order.items?.length ?? 0} รายการ
                   </p>
-                  <p className="font-display text-xl font-extrabold text-primary">
+                  <p className="font-display text-xl font-extrabold text-primary sm:text-right">
                     {formatMoney(
                       order.totalSatang + order.shippingFeeSatang,
                     )}
