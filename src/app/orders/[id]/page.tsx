@@ -94,7 +94,9 @@ export default function OrderDetailPage() {
                   <strong>{formatMoney(order.totalSatang)}</strong>
                 </p>
                 <p className="mt-3 flex justify-between text-sm">
-                  <span className="text-muted">ค่าจัดส่ง</span>
+                  <span className="text-muted">
+                    ค่าจัดส่ง ({(order.totalWeightKg ?? 0).toFixed(3)} กก.)
+                  </span>
                   <strong>{formatMoney(order.shippingFeeSatang)}</strong>
                 </p>
                 <p className="mt-4 flex justify-between border-t border-border pt-4 text-sm">

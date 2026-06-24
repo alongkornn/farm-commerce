@@ -90,8 +90,8 @@ export default function SellerSettingsPage() {
                       farmName: data.get("farmName"),
                       description: data.get("description"),
                       address: data.get("address"),
-                      latitude: Number(data.get("latitude")),
-                      longitude: Number(data.get("longitude")),
+                      latitude: profile.data.latitude,
+                      longitude: profile.data.longitude,
                     }),
                   });
                   await profile.reload();
@@ -119,28 +119,6 @@ export default function SellerSettingsPage() {
                     required
                   />
                 </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <label className="grid gap-1.5 text-sm font-bold">
-                    ละติจูด
-                    <Input
-                      name="latitude"
-                      type="number"
-                      step="any"
-                      defaultValue={profile.data.latitude || ""}
-                      required
-                    />
-                  </label>
-                  <label className="grid gap-1.5 text-sm font-bold">
-                    ลองจิจูด
-                    <Input
-                      name="longitude"
-                      type="number"
-                      step="any"
-                      defaultValue={profile.data.longitude || ""}
-                      required
-                    />
-                  </label>
-                </div>
                 <label className="grid gap-1.5 text-sm font-bold">
                   คำอธิบาย
                   <textarea
